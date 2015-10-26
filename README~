@@ -1,0 +1,3 @@
+This project is based on the Forge MtG emulator (http://www.slightlymagic.net/wiki/Forge) licenced under the GNU General Public License
+
+it is written in Java and runs in Java 7. It is a Maven project, so you'll need that to run it.

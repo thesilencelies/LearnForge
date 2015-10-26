@@ -57,7 +57,7 @@ public class QGameState {
 	}
 	
 	//function to save the card data currently in memory
-	public void savecards(Vector<String> filenames, String Cardnamesfile){
+	public void savecards(Vector<String> filenames, String Cardnamesfile) throws IOException{
 		if (filenames.size() < 6+ myDeck.size() + observedcards.size()) {
 			throw new IOException("not enough filenames");
 		}
@@ -69,36 +69,36 @@ public class QGameState {
 			throw new IOException("not enough filenames");
 		}
 		
-		Doublematrix tempmat;
-		Iterator fnameitr = filenames.iterator();
+		DoubleMatrix tempmat;
+		Iterator<String> fnameitr = filenames.iterator();
 		//load the gamestate metavariables.
-		tempmat = new DoubleMatrix;
+		tempmat = new DoubleMatrix();
 		tempmat.load(fnameitr.next());
 		mylifetot.weights = tempmat;
-		tempmat = new DoubleMatrix;
+		tempmat = new DoubleMatrix();
 		tempmat.load(fnameitr.next());
-		opplifetot.weights  tempmat;
-		tempmat = new DoubleMatrix;
+		opplifetot.weights = tempmat;
+		tempmat = new DoubleMatrix();
 		tempmat.load(fnameitr.next());
 		MainPhase.weights  = tempmat;
-		tempmat = new DoubleMatrix;
+		tempmat = new DoubleMatrix();
 		tempmat.load(fnameitr.next());
 		myTurn.weights  = tempmat;
-		tempmat = new DoubleMatrix;
+		tempmat = new DoubleMatrix();
 		tempmat.load(fnameitr.next());
 		DecAttack.weights  = tempmat;
-		tempmat = new DoubleMatrix;
+		tempmat = new DoubleMatrix();
 		tempmat.load(fnameitr.next());
 		DecBlock.weights  = tempmat;
-		tempmat = new DoubleMatrix;
+		tempmat = new DoubleMatrix();
 		tempmat.load(fnameitr.next());
 		
-		Iterator mycnameitr = mycardnames.iterator();
+		Iterator<Card> mycnameitr = mycardnames.iterator();
 		//load all the cards from your deck
 		myDeck.clear();
 		while(mycnameitr.hasNext()){
 			//load the card
-			tempmat = new DoubleMatrix;
+			tempmat = new DoubleMatrix();
 			tempmat.load(fnameitr.next());
 			myDeck.add(new myQCard(mycnameitr.next(),tempmat));
 		}
