@@ -1,3 +1,10 @@
 This project is based on the Forge MtG emulator (http://www.slightlymagic.net/wiki/Forge) licenced under the GNU General Public License
 
 it is written in Java and runs in Java 7. It is a Maven project, so you'll need that to run it.
+
+in order to run the code you need to:
+	compile the project forge using maven and your enviroment of choice (to use with eclipse the m2e maven integration plugin is required)
+	go into forge/forge-gui-desktop and copy the jar with dependencies to Runnable_folder.
+	run the jar (java -jar <name of jar file>)
+
+
