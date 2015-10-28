@@ -12,7 +12,7 @@
 
     <artifactId>forge-learnedai</artifactId>
     <name>Forge Learned AI</name>
-
+    
     <dependencies>
         <dependency>
             <groupId>forge</groupId>
@@ -28,6 +28,17 @@
 			<groupId>org.jblas</groupId>
   			<artifactId>jblas</artifactId>
   			<version>1.2.4</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github</groupId>
+			<artifactId>neuralnetworks</artifactId>
+			<version>0.1-SNAPSHOT</version>
+			<type>pom</type>
+		</dependency>
+		<dependency>
+			<groupId>com.github.neuralnetworks</groupId>
+			<artifactId>nn-core</artifactId>
+			<version>0.1-SNAPSHOT</version>
 		</dependency>
     </dependencies>
     <version>forge-learned-0.1</version>

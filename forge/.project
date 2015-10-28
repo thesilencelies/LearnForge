@@ -3,6 +3,7 @@
 	<name>forge</name>
 	<comment></comment>
 	<projects>
+		<project>neuralnetworks</project>
 	</projects>
 	<buildSpec>
 	</buildSpec>

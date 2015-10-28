@@ -189,12 +189,8 @@
         <module>forge-gui</module>
         <module>forge-gui-desktop</module>
 
-
-
-
-
-        
         <module>forge-learnedai</module>
+        <module>neuralnetworks</module>
     </modules>
 
     <distributionManagement>
@@ -262,11 +258,13 @@
                 </plugin>
 
                 <plugin>
+                	<groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.1</version>
                     <configuration>
-                        <source>1.7</source>
-                        <target>1.7</target>
+                        <source>1.8</source>
+                        <target>1.8</target>
+                        <encoding>UTF-8</encoding>
                     </configuration>
                 </plugin>
 
@@ -286,7 +284,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.16</version>
+                    <version>2.17</version>
                     <configuration>
                         <!-- <groups>fast</groups>
                     <testFailureIgnore>true</testFailureIgnore>
@@ -316,7 +314,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.7</version>
+                <version>1.8</version>
             </plugin>
 
             <plugin>

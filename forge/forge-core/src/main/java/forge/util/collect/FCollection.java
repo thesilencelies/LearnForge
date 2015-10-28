@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Spliterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -209,7 +210,13 @@ public class FCollection<T> implements List<T>, Set<T>, FCollectionView<T>, Clon
     public Iterator<T> iterator() {
         return list.iterator();
     }
-
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Spliterator<T> spliterator() {
+        return list.spliterator();
+    }
     /**
      * {@inheritDoc}
      */
