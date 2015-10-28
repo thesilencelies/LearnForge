@@ -2,6 +2,7 @@ package forge.learnedai.NNinput;
 
 import forge.learnedai.LearnedAiCardMemory;
 import forge.game.card.Card;
+import forge.game.card.CardCollection;
 
 import java.util.List;
 import java.util.stream.IntStream;
@@ -11,8 +12,6 @@ import java.util.Iterator;
 import java.util.Set;
 import java.lang.String;
 import java.io.IOException;
-
-import org.jblas.DoubleMatrix;
 
 import com.github.neuralnetworks.training.TrainingInputProviderImpl;
 import com.github.neuralnetworks.training.TrainingInputData;
@@ -29,7 +28,7 @@ public class NNcreaturestate extends TrainingInputProviderImpl {
     }
 
 	
-	private List<Card> creatures;
+	private CardCollection creatures;
     private int evalSize;
     public int inputSize;
     private float[] currentCreature;
@@ -37,7 +36,7 @@ public class NNcreaturestate extends TrainingInputProviderImpl {
     private float[] currentTarget;
 
     
-public NNcreaturestate(List<Card> c, float[] target){
+public NNcreaturestate(CardCollection c, float[] target){
 	super();
 	creatures = c;
 	evalSize = 37;

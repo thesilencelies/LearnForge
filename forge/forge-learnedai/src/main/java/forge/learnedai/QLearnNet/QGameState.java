@@ -11,6 +11,7 @@ import java.lang.String;
 import java.io.IOException;
 import org.jblas.DoubleMatrix;
 
+//probably deprecated until we condsider deckbuiling...
 public class QGameState {
 	
     protected int getEffectivePower(final Card c) {
