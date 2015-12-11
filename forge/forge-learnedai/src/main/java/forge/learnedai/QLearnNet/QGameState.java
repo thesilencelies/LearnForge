@@ -2,12 +2,17 @@ package forge.learnedai.QLearnNet;
 
 import forge.learnedai.LearnedAiCardMemory;
 import forge.game.card.Card;
+import forge.game.card.CardCollectionView;
+import forge.game.player.Player;
 import forge.game.spellability.SpellAbility;
+import forge.game.zone.ZoneType;
+
 import java.util.Vector;
 
 import com.github.neuralnetworks.tensor.Matrix;
 import com.github.neuralnetworks.tensor.TensorFactory;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -16,6 +21,15 @@ import java.io.IOException;
 
 //probably deprecated until we condsider deckbuiling...
 public class QGameState {
+	
+	private HashMap<String, Integer> obscards;
+	private int highestusedind = 0;
+	private Player me;
+	
+    private int evalSize;
+    public int inputSize;
+    private float[] currentZone;
+	
 	
     protected int getEffectivePower(final Card c) {
         return c.getNetCombatDamage();
@@ -81,6 +95,45 @@ public class QGameState {
 		return myDeck;
 	}
 	
+
+private float[] zoneRead(int i){
+	Player opp = me.getOpponent();
+	switch (i){
+		case 0:
+			return zoneRead(ZoneType.Battlefield, me);
+		case 1:
+			return zoneRead(ZoneType.Battlefield, opp);
+		case 2:
+			return zoneRead(ZoneType.Stack, me);
+		case 3:
+			return zoneRead(ZoneType.Stack, opp);
+		case 4:
+			return zoneRead(ZoneType.Hand, me);
+			//should I consider the graveyard at some point - may lead to over-fitting
+	}
+	return new float[1200];
+}
+
+private float [] zoneRead(ZoneType z, Player p){
+	CardCollectionView pcards = p.getCardsIn(z);
+	currentZone = new float[evalSize];
+	Iterator<Card> pi = pcards.iterator();
+	int  k;
+	while (pi.hasNext()){
+		Card c = pi.next();
+		if(obscards.get(c.getName()) == null){
+			obscards.put(c.getName(),highestusedind);
+			currentZone[highestusedind]++;
+			highestusedind++;
+		}
+		else{
+			currentZone[obscards.get(c.getName())]++;
+		}
+	}
+	return currentZone;
+}
+
+
 	//not currently used, but maybe later - for now we'll look ahead to stack resolution to understand our opponent's spells (and indeed the consequence of our own)
 	private Matrix AssessSpell(final Card c){
 		return null;
@@ -165,5 +218,12 @@ public class QGameState {
 		opplifetot = new metaQCard(nneuron);
 		Phase = new metaQCard(nneuron);
 		myTurn = new metaQCard(nneuron);
+		
+		evalSize = 1200;	//Standard's card pool
+		inputSize = 1;		//only one event considered at a time right now
+	    currentZone = new float[evalSize];
+	    //is this variable needed?
+	    obscards = new HashMap<String, Integer>(evalSize);
+	    highestusedind = 0;
 	}
 }
