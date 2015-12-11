@@ -4,14 +4,15 @@ import java.util.Collections;
 
 import forge.AIOption;
 import forge.interfaces.IGuiGame;
+import forge.learnedai.NNinput.NNevalNet;
 import forge.match.GameLobby;
 import forge.match.LobbySlot;
 import forge.match.LobbySlotType;
 
 //Temporary lobby instance to use for OnlineLobby before connecting to a server
 public final class OfflineLobby extends GameLobby {
-    public OfflineLobby() {
-        super(true);
+    public OfflineLobby(NNevalNet nn) {
+        super(true, nn);
 
         final String humanName = localName();
         final int[] avatarIndices = localAvatarIndices();

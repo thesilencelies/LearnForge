@@ -2,7 +2,7 @@ package forge.learnedai.ability;
 
 import forge.learnedai.LearnedAiController;
 import forge.learnedai.AiPlayDecision;
-import forge.learnedai.PlayerControllerAi;
+import forge.learnedai.LearnedPlayerControllerAi;
 import forge.learnedai.SpellAbilityAi;
 import forge.game.ability.effects.CharmEffect;
 import forge.game.player.Player;
@@ -52,7 +52,7 @@ public class CharmAi extends SpellAbilityAi {
             return choices.subList(1, choices.size());
         }
 
-        LearnedAiController aic = ((PlayerControllerAi) ai.getController()).getAi();
+        LearnedAiController aic = ((LearnedPlayerControllerAi) ai.getController()).getAi();
         for (int i = 0; i < num; i++) {
             AbilitySub thisPick = null;
             for (SpellAbility sub : choices) {
@@ -101,7 +101,7 @@ public class CharmAi extends SpellAbilityAi {
         AbilitySub goodChoice = null;
         List<AbilitySub> chosenList = new ArrayList<AbilitySub>();
         // select first n playable options
-        LearnedAiController aic = ((PlayerControllerAi) ai.getController()).getAi();
+        LearnedAiController aic = ((LearnedPlayerControllerAi) ai.getController()).getAi();
         for (AbilitySub sub : choices) {
             sub.setActivatingPlayer(ai);
             if ("Good".equals(sub.getParam("AILogic")) && aic.doTrigger(sub, false)) {

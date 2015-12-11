@@ -519,4 +519,5 @@
         </profile>
     </profiles>
     <version>forge-learned-0.1</version>
+    <groupId>forge</groupId>
 </project>

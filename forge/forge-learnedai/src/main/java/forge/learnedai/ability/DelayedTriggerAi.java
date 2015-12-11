@@ -2,7 +2,7 @@ package forge.learnedai.ability;
 
 import forge.learnedai.LearnedAiController;
 import forge.learnedai.AiPlayDecision;
-import forge.learnedai.PlayerControllerAi;
+import forge.learnedai.LearnedPlayerControllerAi;
 import forge.learnedai.SpellAbilityAi;
 import forge.learnedai.SpellApiToAi;
 import forge.game.ability.AbilityFactory;
@@ -25,7 +25,7 @@ public class DelayedTriggerAi extends SpellAbilityAi {
         if (trigsa instanceof AbilitySub) {
             return SpellApiToAi.Converter.get(((AbilitySub) trigsa).getApi()).chkDrawbackWithSubs(ai, (AbilitySub)trigsa);
         } else {
-            return AiPlayDecision.WillPlay == ((PlayerControllerAi)ai.getController()).getAi().canPlaySa(trigsa);
+            return AiPlayDecision.WillPlay == ((LearnedPlayerControllerAi)ai.getController()).getAi().canPlaySa(trigsa);
         }
     }
 
@@ -33,7 +33,7 @@ public class DelayedTriggerAi extends SpellAbilityAi {
     protected boolean doTriggerAINoCost(Player ai, SpellAbility sa, boolean mandatory) {
         final String svarName = sa.getParam("Execute");
         final SpellAbility trigsa = AbilityFactory.getAbility(sa.getHostCard().getSVar(svarName), sa.getHostCard());
-        LearnedAiController aic = ((PlayerControllerAi)ai.getController()).getAi();
+        LearnedAiController aic = ((LearnedPlayerControllerAi)ai.getController()).getAi();
         trigsa.setActivatingPlayer(ai);
 
         if (!sa.hasParam("OptionalDecider")) {
@@ -48,7 +48,7 @@ public class DelayedTriggerAi extends SpellAbilityAi {
         final String svarName = sa.getParam("Execute");
         final SpellAbility trigsa = AbilityFactory.getAbility(sa.getSVar(svarName), sa.getHostCard());
         trigsa.setActivatingPlayer(ai);
-        return AiPlayDecision.WillPlay == ((PlayerControllerAi)ai.getController()).getAi().canPlaySa(trigsa);
+        return AiPlayDecision.WillPlay == ((LearnedPlayerControllerAi)ai.getController()).getAi().canPlaySa(trigsa);
     }
 
 }

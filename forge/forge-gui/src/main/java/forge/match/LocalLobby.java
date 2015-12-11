@@ -5,12 +5,13 @@ import java.util.Collections;
 import forge.AIOption;
 import forge.GuiBase;
 import forge.interfaces.IGuiGame;
+import forge.learnedai.NNinput.NNevalNet;
 
 public final class LocalLobby extends GameLobby {
 
     private IGuiGame gui = null;
-    public LocalLobby() {
-        super(false);
+    public LocalLobby(NNevalNet nn) {
+        super(false, nn);
 
         final String humanName = localName();
         final int[] avatarIndices = localAvatarIndices();

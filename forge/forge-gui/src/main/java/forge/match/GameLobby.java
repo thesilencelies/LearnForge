@@ -29,6 +29,7 @@ import forge.interfaces.IGameController;
 import forge.interfaces.IGuiGame;
 import forge.interfaces.IUpdateable;
 import forge.item.PaperCard;
+import forge.learnedai.NNinput.NNevalNet;
 import forge.model.FModel;
 import forge.net.event.UpdateLobbyPlayerEvent;
 import forge.player.GamePlayerUtil;
@@ -42,14 +43,16 @@ public abstract class GameLobby {
     private GameLobbyData data = new GameLobbyData();
     private GameType currentGameType = GameType.Constructed;
     private int lastArchenemy = 0;
+    private NNevalNet nn;
 
     private IUpdateable listener;
 
     private final boolean allowNetworking;
     private HostedMatch hostedMatch;
     private final Map<LobbySlot, IGameController> gameControllers = Maps.newHashMap();
-    protected GameLobby(final boolean allowNetworking) {
+    protected GameLobby(final boolean allowNetworking, NNevalNet _nn) {
         this.allowNetworking = allowNetworking;
+        nn = _nn;
     }
 
     public final boolean isAllowNetworking() {
@@ -374,7 +377,7 @@ public abstract class GameLobby {
             if (isAI) {
                 lobbyPlayer = GamePlayerUtil.createAiPlayer(name, avatar, aiOptions);
             } else if (isLEARNED){
-            	lobbyPlayer = GamePlayerUtil.createLearnedAiPlayer(name, avatar, aiOptions);
+            	lobbyPlayer = GamePlayerUtil.createLearnedAiPlayer(name, avatar, aiOptions, nn);
             }
             else
             {

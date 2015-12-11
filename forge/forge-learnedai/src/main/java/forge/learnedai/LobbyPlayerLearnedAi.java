@@ -8,6 +8,7 @@ import forge.game.Game;
 import forge.game.player.IGameEntitiesFactory;
 import forge.game.player.Player;
 import forge.game.player.PlayerController;
+import forge.learnedai.NNinput.NNevalNet;
 
 public class LobbyPlayerLearnedAi extends LobbyPlayer implements IGameEntitiesFactory {
 
@@ -15,12 +16,17 @@ public class LobbyPlayerLearnedAi extends LobbyPlayer implements IGameEntitiesFa
     private boolean rotateProfileEachGame;
     private boolean allowCheatShuffle;
     private boolean useSimulation;
+    private NNevalNet nn;
 
-    public LobbyPlayerLearnedAi(String name, Set<AIOption> options) {
+    public LobbyPlayerLearnedAi(String name, Set<AIOption> options, NNevalNet _nn) {
         super(name);
         if (options != null && options.contains(AIOption.USE_SIMULATION)) {
             this.useSimulation = true;
         }
+        nn = _nn;
+    }
+    public NNevalNet getNN(){
+    	return nn;
     }
 
     public boolean isAllowCheatShuffle() {
@@ -43,8 +49,8 @@ public class LobbyPlayerLearnedAi extends LobbyPlayer implements IGameEntitiesFa
         this.rotateProfileEachGame = rotateProfileEachGame;
     }
 
-    private PlayerControllerAi createControllerFor(Player ai) {
-        PlayerControllerAi result = new PlayerControllerAi(ai.getGame(), ai, this);
+    private LearnedPlayerControllerAi createControllerFor(Player ai) {
+        LearnedPlayerControllerAi result = new LearnedPlayerControllerAi(ai.getGame(), ai, this, nn);
         result.setUseSimulation(useSimulation);
         result.allowCheatShuffle(allowCheatShuffle);
         return result;

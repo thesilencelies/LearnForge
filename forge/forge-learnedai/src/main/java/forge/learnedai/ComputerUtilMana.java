@@ -528,7 +528,7 @@ public class ComputerUtilMana {
         }
 
         // if we are simulating mana payment for the human controller, use the first mana available (and avoid prompting the human player)
-        if (!(ai.getController() instanceof PlayerControllerAi)) {
+        if (!(ai.getController() instanceof LearnedPlayerControllerAi)) {
             return manaChoices.get(0);
         }
 
@@ -667,11 +667,11 @@ public class ComputerUtilMana {
         if (sa == null) {
             return false;
         }
-        if (!(ai.getController() instanceof PlayerControllerAi)) {
+        if (!(ai.getController() instanceof LearnedPlayerControllerAi)) {
             return false;
         }
 
-        LearnedAiController aic = ((PlayerControllerAi)ai.getController()).getAi();
+        LearnedAiController aic = ((LearnedPlayerControllerAi)ai.getController()).getAi();
         int chanceToReserve = aic.getIntProperty(AiProps.RESERVE_MANA_FOR_MAIN2_CHANCE);
 
         // If it's a low priority spell (it's explicitly marked so elsewhere in the AI with a SVar), always

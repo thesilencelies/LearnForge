@@ -35,7 +35,9 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 
-import forge.learnedai.simulation.SpellAbilityPicker;
+import forge.learnedai.NNinput.NNevalNet;
+import forge.learnedai.simulation.LearnedGameStateEvaluator;
+import forge.learnedai.simulation.LearnedSpellAbilityPicker;
 import forge.card.CardStateName;
 import forge.card.CardType;
 import forge.card.MagicColor;
@@ -104,7 +106,7 @@ public class LearnedAiController {
     private final LearnedAiCardMemory memory;
     private boolean cheatShuffle;
     private boolean useSimulation;
-    private SpellAbilityPicker simPicker;
+    private LearnedSpellAbilityPicker simPicker;
 
     public boolean canCheatShuffle() {
         return cheatShuffle;
@@ -130,50 +132,11 @@ public class LearnedAiController {
         return memory;
     }
 
-    public LearnedAiController(final Player computerPlayer, final Game game0) {
+    public LearnedAiController(final Player computerPlayer, final Game game0, NNevalNet nn) {
         player = computerPlayer;
         game = game0;
         memory = new LearnedAiCardMemory();
-        simPicker = new SpellAbilityPicker(game, player);
-    }
-
-    private List<SpellAbility> getPossibleETBCounters() {
-        final Player opp = player.getOpponent();
-        CardCollection all = new CardCollection(player.getCardsIn(ZoneType.Hand));
-        all.addAll(player.getCardsIn(ZoneType.Exile));
-        all.addAll(player.getCardsIn(ZoneType.Graveyard));
-        if (!player.getCardsIn(ZoneType.Library).isEmpty()) {
-            all.add(player.getCardsIn(ZoneType.Library).get(0));
-        }
-        all.addAll(opp.getCardsIn(ZoneType.Exile));
-
-        final List<SpellAbility> spellAbilities = new ArrayList<SpellAbility>();
-        for (final Card c : all) {
-            for (final SpellAbility sa : c.getNonManaAbilities()) {
-                if (sa instanceof SpellPermanent) {
-                    sa.setActivatingPlayer(player);
-                    if (checkETBEffects(c, sa, ApiType.Counter)) {
-                        spellAbilities.add(sa);
-                    }
-                }
-            }
-        }
-        return spellAbilities;
-    }
-
-    private boolean checkCurseEffects(final SpellAbility sa) {
-        for (final Card c : game.getCardsIn(ZoneType.Battlefield)) {
-            if (c.hasSVar("CurseEffect")) {
-                final String curse = c.getSVar("CurseEffect");
-                if ("NonActive".equals(curse) && !player.equals(game.getPhaseHandler().getPlayerTurn())) {
-                    return true;
-                } else if ("DestroyCreature".equals(curse) && sa.isSpell() && sa.getHostCard().isCreature()
-                        && !sa.getHostCard().hasKeyword("Indestructible")) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        simPicker = new LearnedSpellAbilityPicker(game, player, new LearnedGameStateEvaluator(nn));
     }
 
     public boolean checkETBEffects(final Card card, final SpellAbility sa, final ApiType api) {
@@ -321,19 +284,6 @@ public class LearnedAiController {
             }
         }
         return true;
-    }
-
-    private static List<SpellAbility> getPlayableCounters(final CardCollection l) {
-        final List<SpellAbility> spellAbility = new ArrayList<SpellAbility>();
-        for (final Card c : l) {
-            for (final SpellAbility sa : c.getNonManaAbilities()) {
-                // Check if this AF is a Counterpsell
-                if (sa.getApi() == ApiType.Counter) {
-                    spellAbility.add(sa);
-                }
-            }
-        }
-        return spellAbility;
     }
 
     // plays a land if one is available
@@ -512,43 +462,7 @@ public class LearnedAiController {
         return landList.get(0);
     }
 
-    // if return true, go to next phase
-    private SpellAbility chooseCounterSpell(final List<SpellAbility> possibleCounters) {
-        if (possibleCounters == null || possibleCounters.isEmpty()) {
-            return null;
-        }
-        SpellAbility bestSA = null;
-        int bestRestriction = Integer.MIN_VALUE;
-
-        for (final SpellAbility sa : ComputerUtilAbility.getOriginalAndAltCostAbilities(possibleCounters, player)) {
-            SpellAbility currentSA = sa;
-            sa.setActivatingPlayer(player);
-            // check everything necessary
-
-
-            AiPlayDecision opinion = canPlayAndPayFor(currentSA);
-            //PhaseHandler ph = game.getPhaseHandler();
-            // System.out.printf("Ai thinks '%s' of %s @ %s %s >>> \n", opinion, sa, Lang.getPossesive(ph.getPlayerTurn().getName()), ph.getPhase());
-            if (opinion == AiPlayDecision.WillPlay) {
-                if (bestSA == null) {
-                    bestSA = currentSA;
-                    bestRestriction = ComputerUtil.counterSpellRestriction(player, currentSA);
-                } else {
-                    // Compare bestSA with this SA
-                    final int restrictionLevel = ComputerUtil.counterSpellRestriction(player, currentSA);
-
-                    if (restrictionLevel > bestRestriction) {
-                        bestRestriction = restrictionLevel;
-                        bestSA = currentSA;
-                    }
-                }
-            }
-        }
-
-        // TODO - "Look" at Targeted SA and "calculate" the threshold
-        // if (bestRestriction < targetedThreshold) return false;
-        return bestSA;
-    }
+  
 
     public SpellAbility predictSpellToCastInMain2(ApiType exceptSA) {
         return predictSpellToCastInMain2(exceptSA, true);
@@ -563,7 +477,6 @@ public class LearnedAiController {
             ComputerUtilAbility.getAvailableCards(game, player);
 
         List<SpellAbility> all = ComputerUtilAbility.getSpellAbilities(cards, player);
-        Collections.sort(all, saComparator); // put best spells first
 
         for (final SpellAbility sa : ComputerUtilAbility.getOriginalAndAltCostAbilities(all, player)) {
             if (sa.getApi() == ApiType.Counter || sa.getApi() == exceptSA) {
@@ -586,7 +499,7 @@ public class LearnedAiController {
         ManaCostBeingPaid cost = ComputerUtilMana.calculateManaCost(sa, true, 0);
         CardCollection manaSources = ComputerUtilMana.getManaSourcesToPayCost(cost, sa, player);
         for (Card c : manaSources) {
-            ((PlayerControllerAi)player.getController()).getAi().getCardMemory().rememberCard(c, LearnedAiCardMemory.MemorySet.HELD_MANA_SOURCES);
+            ((LearnedPlayerControllerAi)player.getController()).getAi().getCardMemory().rememberCard(c, LearnedAiCardMemory.MemorySet.HELD_MANA_SOURCES);
         }
     }
 
@@ -626,9 +539,7 @@ public class LearnedAiController {
                 card.setSVar("PayX", Integer.toString(xPay));
             }
         }
-        if (checkCurseEffects(sa)) {
-            return AiPlayDecision.CurseEffects;
-        }
+        
         if (sa instanceof SpellPermanent) {
             ManaCost mana = sa.getPayCosts().getTotalMana();
             if (mana.countX() > 0) {
@@ -755,73 +666,6 @@ public class LearnedAiController {
         return AiPlayDecision.WillPlay;
     }
 
-    // not sure "playing biggest spell" matters?
-    private final static Comparator<SpellAbility> saComparator = new Comparator<SpellAbility>() {
-        @Override
-        public int compare(final SpellAbility a, final SpellAbility b) {
-            // sort from highest cost to lowest
-            // we want the highest costs first
-            int a1 = a.getPayCosts() == null ? 0 : a.getPayCosts().getTotalMana().getCMC();
-            int b1 = b.getPayCosts() == null ? 0 : b.getPayCosts().getTotalMana().getCMC();
-
-            // deprioritize planar die roll marked with AIRollPlanarDieParams:LowPriority$ True
-            if (ApiType.RollPlanarDice == a.getApi() && a.getHostCard().hasSVar("AIRollPlanarDieParams") && a.getHostCard().getSVar("AIRollPlanarDieParams").toLowerCase().matches(".*lowpriority\\$\\s*true.*")) {
-                return 1;
-            } else if (ApiType.RollPlanarDice == b.getApi() && b.getHostCard().hasSVar("AIRollPlanarDieParams") && b.getHostCard().getSVar("AIRollPlanarDieParams").toLowerCase().matches(".*lowpriority\\$\\s*true.*")) {
-                return -1;
-            }
-
-            // cast 0 mana cost spells first (might be a Mox)
-            if (a1 == 0 && b1 > 0 && ApiType.Mana != a.getApi()) {
-                return -1;
-            } else if (a1 > 0 && b1 == 0 && ApiType.Mana != b.getApi()) {
-                return 1;
-            }
-
-            if (a.getHostCard().hasSVar("FreeSpellAI")) {
-            	return -1;
-            } else if (b.getHostCard().hasSVar("FreeSpellAI")) {
-            	return 1;
-            }
-
-            a1 += getSpellAbilityPriority(a);
-            b1 += getSpellAbilityPriority(b);
-
-            return b1 - a1;
-        }
-
-        private int getSpellAbilityPriority(SpellAbility sa) {
-            int p = 0;
-            Card source = sa.getHostCard();
-            // puts creatures in front of spells
-            if (source.isCreature()) {
-                p += 1;
-            }
-            // don't play equipments before having any creatures
-            if (source.isEquipment() && sa.getHostCard().getController().getCreaturesInPlay().isEmpty()) {
-                p -= 9;
-            }
-            // artifacts and enchantments with effects that do not stack
-            if ("True".equals(source.getSVar("NonStackingEffect")) && source.getController().isCardInPlay(source.getName())) {
-                p -= 9;
-            }
-            // sort planeswalker abilities for ultimate
-            if (sa.getRestrictions().isPwAbility()) {
-                if (sa.hasParam("Ultimate")) {
-                    p += 9;
-                }
-            }
-
-            if (ApiType.DestroyAll == sa.getApi()) {
-                p += 4;
-            }
-            else if (ApiType.Mana == sa.getApi()) {
-            	p -= 9;
-            }
-
-            return p;
-        }
-    };
 
     public CardCollection getCardsToDiscard(final int numDiscard, final String[] uTypes, final SpellAbility sa) {
         CardCollection hand = new CardCollection(player.getCardsIn(ZoneType.Hand));
@@ -1171,14 +1015,6 @@ public class LearnedAiController {
         }
         final CardCollection cards = ComputerUtilAbility.getAvailableCards(game, player);
 
-        if (!game.getStack().isEmpty()) {
-            SpellAbility counter = chooseCounterSpell(getPlayableCounters(cards));
-            if (counter != null) return counter;
-
-            SpellAbility counterETB = chooseSpellAbilityToPlay(this.getPossibleETBCounters(), false);
-            if (counterETB != null)
-                return counterETB;
-        }
 
         SpellAbility result = chooseSpellAbilityToPlay(ComputerUtilAbility.getSpellAbilities(cards, player), true);
         if (null == result)
@@ -1190,30 +1026,8 @@ public class LearnedAiController {
         if (all == null || all.isEmpty())
             return null;
 
-        if (useSimulation) {
+       
             return simPicker.chooseSpellAbilityToPlay(null, all, skipCounter);
-        }
-
-        Collections.sort(all, saComparator); // put best spells first
-
-        for (final SpellAbility sa : ComputerUtilAbility.getOriginalAndAltCostAbilities(all, player)) {
-            // Don't add Counterspells to the "normal" playcard lookups
-            if (skipCounter && sa.getApi() == ApiType.Counter) {
-                continue;
-            }
-            sa.setActivatingPlayer(player);
-
-            AiPlayDecision opinion = canPlayAndPayFor(sa);
-            // PhaseHandler ph = game.getPhaseHandler();
-            // System.out.printf("Ai thinks '%s' of %s -> %s @ %s %s >>> \n", opinion, sa.getHostCard(), sa, Lang.getPossesive(ph.getPlayerTurn().getName()), ph.getPhase());
-
-            if (opinion != AiPlayDecision.WillPlay)
-                continue;
-
-            return sa;
-        }
-
-        return null;
     }
 
     public CardCollection chooseCardsToDelve(int colorlessCost, CardCollection grave) {

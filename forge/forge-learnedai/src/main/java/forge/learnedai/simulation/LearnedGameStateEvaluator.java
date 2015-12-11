@@ -2,6 +2,7 @@ package forge.learnedai.simulation;
 
 import forge.learnedai.AiAttackController;
 import forge.learnedai.CreatureEvaluator;
+import forge.learnedai.NNinput.NNevalNet;
 import forge.game.Game;
 import forge.game.card.Card;
 import forge.game.card.CounterType;
@@ -11,10 +12,18 @@ import forge.game.phase.PhaseType;
 import forge.game.player.Player;
 import forge.game.zone.ZoneType;
 
-public class GameStateEvaluator {
-    private boolean debugging = false;
-    private boolean ignoreTempBoosts = false;
-    private SimulationCreatureEvaluator eval = new SimulationCreatureEvaluator();
+public class LearnedGameStateEvaluator {
+    private boolean debugging;
+    private boolean ignoreTempBoosts;
+    
+    //neural network elements
+    private NNevalNet nn;
+    
+    public LearnedGameStateEvaluator(NNevalNet _nn){
+    	nn = _nn;
+    	debugging = false;
+    	ignoreTempBoosts = false;
+    }
 
     public void setDebugging(boolean debugging) {
         this.debugging = debugging;
@@ -22,7 +31,7 @@ public class GameStateEvaluator {
 
     private static void debugPrint(String s) {
         //System.err.println(s);
-        GameSimulator.debugPrint(s);
+        LearnedGameSimulator.debugPrint(s);
     }
 
     private Combat simulateUpcomingCombatThisTurn(Game game) {
@@ -118,7 +127,7 @@ public class GameStateEvaluator {
             if (combat != null && combat.isAttacking(c)) {
                 ignoreTempBoosts = false;
             }
-            int result = eval.evaluateCreature(c);
+            int result =0;
             return result;
         } else if (c.isLand()) {
             return 100;
@@ -141,7 +150,7 @@ public class GameStateEvaluator {
         @Override
         protected int addValue(int value, String text) {
             if (debugging && value != 0) {
-                GameSimulator.debugPrint(value + " via " + text);
+                LearnedGameSimulator.debugPrint(value + " via " + text);
             }
             return super.addValue(value, text);
         }

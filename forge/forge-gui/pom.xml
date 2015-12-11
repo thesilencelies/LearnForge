@@ -73,5 +73,4 @@
         	<version>${project.version}</version>
         </dependency>
     </dependencies>
-    <version>forge-learned-0.1</version>
 </project>

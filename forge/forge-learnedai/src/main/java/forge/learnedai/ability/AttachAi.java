@@ -1069,7 +1069,7 @@ public class AttachAi extends SpellAbilityAi {
 
         Card c = attachGeneralAI(aiPlayer, sa, prefList, mandatory, attachSource, sa.getParam("AILogic"));
 
-        LearnedAiController aic = ((PlayerControllerAi)aiPlayer.getController()).getAi();
+        LearnedAiController aic = ((LearnedPlayerControllerAi)aiPlayer.getController()).getAi();
         if (c != null && attachSource.isEquipment()
                 && attachSource.isEquipping()
                 && attachSource.getEquipping().getController() == aiPlayer) {

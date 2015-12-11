@@ -21,6 +21,9 @@ public class LobbyPlayerAi extends LobbyPlayer implements IGameEntitiesFactory {
         if (options != null && options.contains(AIOption.USE_SIMULATION)) {
             this.useSimulation = true;
         }
+        if(options == null){
+        	this.useSimulation = true;
+        }
     }
     
     public boolean isAllowCheatShuffle() {

@@ -23,7 +23,7 @@ import com.google.common.collect.Iterables;
 import forge.learnedai.LearnedAiCardMemory;
 import forge.learnedai.ComputerUtilCard;
 import forge.learnedai.ComputerUtilCombat;
-import forge.learnedai.PlayerControllerAi;
+import forge.learnedai.LearnedPlayerControllerAi;
 import forge.learnedai.SpellAbilityAi;
 import forge.game.Game;
 import forge.game.ability.AbilityUtils;
@@ -173,7 +173,7 @@ public class ControlGainAi extends SpellAbilityAi {
                 t = ComputerUtilCard.getBestCreatureAI(list);
                 if (lose != null && lose.contains("EOT")) {
                     // Remember to always attack with this creature since it'll bounce back to its owner at end of turn anyway
-                    ((PlayerControllerAi)ai.getController()).getAi().getCardMemory().rememberCard(t, LearnedAiCardMemory.MemorySet.MANDATORY_ATTACKERS);
+                    ((LearnedPlayerControllerAi)ai.getController()).getAi().getCardMemory().rememberCard(t, LearnedAiCardMemory.MemorySet.MANDATORY_ATTACKERS);
                 }
             } else if (hasArtifact) {
                 t = ComputerUtilCard.getBestArtifactAI(list);

@@ -8,8 +8,8 @@ import java.util.Set;
 
 import forge.learnedai.ComputerUtil;
 import forge.learnedai.ComputerUtilAbility;
-import forge.learnedai.PlayerControllerAi;
-import forge.learnedai.simulation.GameStateEvaluator.Score;
+import forge.learnedai.LearnedPlayerControllerAi;
+import forge.learnedai.simulation.LearnedGameStateEvaluator.Score;
 import forge.game.Game;
 import forge.game.GameObject;
 import forge.game.card.Card;
@@ -18,24 +18,25 @@ import forge.game.player.Player;
 import forge.game.spellability.SpellAbility;
 import forge.game.spellability.TargetChoices;
 import forge.game.spellability.TargetRestrictions;
+import forge.ai.PlayerControllerAi;
 
-public class GameSimulator {
+public class LearnedGameSimulator {
     public static boolean COPY_STACK = false;
     final private SimulationController controller;
     private GameCopier copier;
     private Game simGame;
     private Player aiPlayer;
-    private GameStateEvaluator eval;
+    private LearnedGameStateEvaluator eval;
     private List<String> origLines;
     private Score origScore;
 
-    public GameSimulator(final SimulationController controller, final Game origGame, final Player origAiPlayer) {
+    public LearnedGameSimulator(final SimulationController controller, final Game origGame, final Player origAiPlayer, LearnedGameStateEvaluator _eval) {
         this.controller = controller;
         copier = new GameCopier(origGame);
         simGame = copier.makeCopy();
 
         aiPlayer = (Player) copier.find(origAiPlayer);
-        eval = new GameStateEvaluator();
+        eval = _eval;
 
         origLines = new ArrayList<String>();
         debugLines = origLines;
@@ -128,7 +129,7 @@ public class GameSimulator {
     public Score simulateSpellAbility(SpellAbility origSa) {
         return simulateSpellAbility(origSa, this.eval);
     }
-    public Score simulateSpellAbility(SpellAbility origSa, GameStateEvaluator eval) {
+    public Score simulateSpellAbility(SpellAbility origSa, LearnedGameStateEvaluator eval) {
         // TODO: optimize: prune identical SA (e.g. two of the same card in hand)
         SpellAbility sa = findSaInSimGame(origSa);
         if (sa == null) {
@@ -188,7 +189,7 @@ public class GameSimulator {
         controller.printState(score, origSa);
         if (controller.shouldRecurse() && !simGame.isGameOver()) {
             controller.push(sa);
-            SpellAbilityPicker sim = new SpellAbilityPicker(simGame, aiPlayer);
+            LearnedSpellAbilityPicker sim = new LearnedSpellAbilityPicker(simGame, aiPlayer, eval);
             CardCollection cards = ComputerUtilAbility.getAvailableCards(simGame, aiPlayer);
             List<SpellAbility> all = ComputerUtilAbility.getSpellAbilities(cards, aiPlayer);
             SpellAbility nextSa = sim.chooseSpellAbilityToPlay(controller, all, true);
@@ -222,6 +223,7 @@ public class GameSimulator {
                     // Continue until stack is empty.
                 }
             }
+            //use the hard coded AI to complete the stack 
         }, new PlayerControllerAi(game, opponent, opponent.getLobbyPlayer()));
     }
 

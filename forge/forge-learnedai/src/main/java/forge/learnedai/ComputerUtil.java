@@ -1449,7 +1449,7 @@ public class ComputerUtil {
     // Computer mulligans if there are no cards with converted mana cost of 0 in its hand
     public static boolean wantMulligan(Player ai) {
         final CardCollectionView handList = ai.getCardsIn(ZoneType.Hand);
-        final LearnedAiController aic = ((PlayerControllerAi)ai.getController()).getAi();
+        final LearnedAiController aic = ((LearnedPlayerControllerAi)ai.getController()).getAi();
 
         // don't mulligan when already too low
         if (handList.size() < aic.getIntProperty(AiProps.MULLIGAN_THRESHOLD)) {
@@ -1575,7 +1575,7 @@ public class ComputerUtil {
 
     public static CardCollection getCardsToDiscardFromFriend(Player aiChooser, Player p, SpellAbility sa, CardCollection validCards, int min, int max) {
         if (p == aiChooser) { // ask that ai player what he would like to discard
-            final LearnedAiController aic = ((PlayerControllerAi)p.getController()).getAi();
+            final LearnedAiController aic = ((LearnedPlayerControllerAi)p.getController()).getAi();
             return aic.getCardsToDiscard(min, max, validCards, sa);
         }
         // no special options for human or remote friends

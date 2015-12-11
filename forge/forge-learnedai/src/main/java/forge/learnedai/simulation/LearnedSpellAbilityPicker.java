@@ -6,7 +6,7 @@ import java.util.List;
 import forge.learnedai.AiPlayDecision;
 import forge.learnedai.ComputerUtilAbility;
 import forge.learnedai.ComputerUtilCost;
-import forge.learnedai.simulation.GameStateEvaluator.Score;
+import forge.learnedai.simulation.LearnedGameStateEvaluator.Score;
 import forge.game.Game;
 import forge.game.ability.ApiType;
 import forge.game.phase.PhaseType;
@@ -15,15 +15,18 @@ import forge.game.spellability.SpellAbility;
 import forge.game.spellability.SpellAbilityCondition;
 import forge.game.spellability.TargetChoices;
 
-public class SpellAbilityPicker {
+public class LearnedSpellAbilityPicker {
     private Game game;
     private Player player;
     private Score bestScore;
     private boolean printOutput;
+    //hold the evaluator here so that we can feed it the NN
+    private LearnedGameStateEvaluator eval;
 
-    public SpellAbilityPicker(Game game, Player player) {
+    public LearnedSpellAbilityPicker(Game game, Player player,LearnedGameStateEvaluator _eval) {
         this.game = game;
         this.player = player;
+        eval = _eval;
     }
 
     private void print(String str) {
@@ -65,7 +68,7 @@ public class SpellAbilityPicker {
         }
         SpellAbility bestSa = null;
         print("Evaluating...");
-        GameSimulator simulator = new GameSimulator(controller, game, player);
+        LearnedGameSimulator simulator = new LearnedGameSimulator(controller, game, player, eval);
         // FIXME: This is wasteful, we should re-use the same simulator...
         Score origGameScore = simulator.getScoreForOrigGame();
         Score bestSaValue = origGameScore;
@@ -150,18 +153,18 @@ public class SpellAbilityPicker {
     }
 
     private Score evaluateSa(SimulationController controller, SpellAbility sa) {
-        GameSimulator.debugPrint("Evaluate SA: " + sa);
+        LearnedGameSimulator.debugPrint("Evaluate SA: " + sa);
         if (!sa.usesTargeting()) {
-            GameSimulator simulator = new GameSimulator(controller, game, player);
+            LearnedGameSimulator simulator = new LearnedGameSimulator(controller, game, player,eval);
             return simulator.simulateSpellAbility(sa);
         }
-        GameSimulator.debugPrint("Checking out targets");
+        LearnedGameSimulator.debugPrint("Checking out targets");
         PossibleTargetSelector selector = new PossibleTargetSelector(game, player, sa);
         Score bestScore = new Score(Integer.MIN_VALUE);
         TargetChoices tgt = null;
         while (selector.selectNextTargets()) {
-            GameSimulator.debugPrint("Trying targets: " + sa.getTargets().getTargetedString());
-            GameSimulator simulator = new GameSimulator(controller, game, player);
+            LearnedGameSimulator.debugPrint("Trying targets: " + sa.getTargets().getTargetedString());
+            LearnedGameSimulator simulator = new LearnedGameSimulator(controller, game, player,eval);
             Score score = simulator.simulateSpellAbility(sa);
             if (score.value > bestScore.value) {
                 bestScore = score;

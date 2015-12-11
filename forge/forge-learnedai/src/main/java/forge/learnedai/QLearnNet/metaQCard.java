@@ -1,15 +1,17 @@
 package forge.learnedai.QLearnNet;
 
+import com.github.neuralnetworks.tensor.Matrix;
+import com.github.neuralnetworks.tensor.TensorFactory;
+
 import forge.game.card.Card;
-import org.jblas.DoubleMatrix;
 
 //this class is there to allow the system to handle things like life totals
 public class metaQCard extends QCard{
 
 	public metaQCard(int nneuron){
-		weights = DoubleMatrix.rand(nneuron);
+		weights = TensorFactory.matrix(new float[1][nneuron]);
 	}
-	public metaQCard(DoubleMatrix DM){
+	public metaQCard(Matrix DM){
 		weights = DM;
 	}
 }

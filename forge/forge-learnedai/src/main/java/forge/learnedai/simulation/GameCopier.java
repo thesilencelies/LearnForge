@@ -101,7 +101,7 @@ public class GameCopier {
 
         newGame.getTriggerHandler().resetActiveTriggers();
 
-        if (GameSimulator.COPY_STACK)
+        if (LearnedGameSimulator.COPY_STACK)
             copyStack(origGame, newGame, gameObjectMap);
 
         return newGame;
@@ -137,7 +137,7 @@ public class GameCopier {
         RegisteredPlayer clone = new RegisteredPlayer(p.getDeck());
         LobbyPlayer lp = p.getPlayer();
         if (!(lp instanceof LobbyPlayerLearnedAi)) {
-            lp = new LobbyPlayerLearnedAi(p.getPlayer().getName(), null);
+            lp = new LobbyPlayerLearnedAi(p.getPlayer().getName(), null, ((LobbyPlayerLearnedAi)lp).getNN());
         }
         clone.setPlayer(lp);
         return clone;

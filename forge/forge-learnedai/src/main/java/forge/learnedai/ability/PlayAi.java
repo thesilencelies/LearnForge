@@ -5,7 +5,7 @@ import com.google.common.base.Predicate;
 import forge.learnedai.AiPlayDecision;
 import forge.learnedai.ComputerUtilCard;
 import forge.learnedai.ComputerUtilCost;
-import forge.learnedai.PlayerControllerAi;
+import forge.learnedai.LearnedPlayerControllerAi;
 import forge.learnedai.SpellAbilityAi;
 import forge.game.ability.AbilityUtils;
 import forge.game.card.Card;
@@ -124,7 +124,7 @@ public class PlayAi extends SpellAbilityAi {
                     // timing restrictions still apply
                     if (!s.getRestrictions().checkTimingRestrictions(c, s))
                         continue;
-                    if( AiPlayDecision.WillPlay == ((PlayerControllerAi)ai.getController()).getAi().canPlayFromEffectAI(spell, false, true)) {
+                    if( AiPlayDecision.WillPlay == ((LearnedPlayerControllerAi)ai.getController()).getAi().canPlayFromEffectAI(spell, false, true)) {
                         return true;
                     }
                 }

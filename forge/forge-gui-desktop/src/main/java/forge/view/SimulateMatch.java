@@ -15,6 +15,7 @@ import forge.game.GameRules;
 import forge.game.GameType;
 import forge.game.Match;
 import forge.game.player.RegisteredPlayer;
+import forge.learnedai.NNinput.NNevalNet;
 import forge.model.FModel;
 import forge.player.GamePlayerUtil;
 import forge.util.Lang;
@@ -55,7 +56,7 @@ public class SimulateMatch {
     }
     
     //TODO: Setup a list of decks so that the AI can be trained on a gauntlet of opponents
-    public static void simulatelearn(String[] args) {
+    public static void simulatelearn(String[] args, NNevalNet nn) {
         FModel.initialize(null);
 
         System.out.println("Training Ai on sims");
@@ -81,7 +82,7 @@ public class SimulateMatch {
         
         //load the learned ai state
         List<RegisteredPlayer> pp = new ArrayList<RegisteredPlayer>();
-        pp.add(new RegisteredPlayer(d1).setPlayer(GamePlayerUtil.createLearnedAiPlayer("Ai-" + d1.getName(), 0)));	//needs to handle the learned Ai parameters
+        pp.add(new RegisteredPlayer(d1).setPlayer(GamePlayerUtil.createLearnedAiPlayer("Ai-" + d1.getName(), 0, nn)));
         pp.add(new RegisteredPlayer(d2).setPlayer(GamePlayerUtil.createAiPlayer("Ai_" + d2.getName(), 1)));
         GameRules rules = new GameRules(GameType.Constructed);
         Match mc = new Match(rules, pp, "Test");
@@ -118,14 +119,6 @@ public class SimulateMatch {
 
 
     private static Deck deckFromCommandLineParameter(String deckname) {
-        int dotpos = deckname.lastIndexOf('.');
-        if(dotpos > 0 && dotpos == deckname.length()-4)
-            return DeckSerializer.fromFile(new File(deckname));
-        return FModel.getDecks().getConstructed().get(deckname);
-    }
-    
-    //need to set this up too
-    private static Deck AiFromCommandLineParameter(String deckname) {
         int dotpos = deckname.lastIndexOf('.');
         if(dotpos > 0 && dotpos == deckname.length()-4)
             return DeckSerializer.fromFile(new File(deckname));

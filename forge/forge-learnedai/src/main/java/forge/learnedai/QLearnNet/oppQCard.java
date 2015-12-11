@@ -1,8 +1,10 @@
 package forge.learnedai.QLearnNet;
 
 import forge.game.card.Card;
-import org.jblas.DoubleMatrix;
 import java.lang.String;
+
+import com.github.neuralnetworks.tensor.Matrix;
+import com.github.neuralnetworks.tensor.TensorFactory;
 
 public class oppQCard extends QCard{
 	public int noObserve;
@@ -18,9 +20,9 @@ public class oppQCard extends QCard{
 		cardid = cid;
 		noObserve = nob;
 		THISGAME = TG;
-		weights = DoubleMatrix.rand(nneuron);
+		weights = TensorFactory.matrix(new float[1][nneuron]);
 	}
-	public oppQCard(Card cid, int nob, boolean TG, DoubleMatrix DM){
+	public oppQCard(Card cid, int nob, boolean TG, Matrix DM){
 		cardid = cid;
 		noObserve = nob;
 		THISGAME = TG;

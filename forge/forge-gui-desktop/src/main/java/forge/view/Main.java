@@ -22,6 +22,7 @@ import forge.GuiDesktop;
 import forge.Singletons;
 import forge.card.CardReaderExperiments;
 import forge.error.ExceptionHandler;
+import forge.learnedai.NNinput.NNevalNet;
 
 /**
  * Main class for Forge's swing application view.
@@ -30,12 +31,16 @@ public final class Main {
     /**
      * Main entrypoint for Forge
      */
+	
+	//need to load the NN here somehow - will do proper loading once implimented, for now it's just instantiated here
     public static void main(final String[] args) {
         // HACK - temporary solution to "Comparison method violates it's general contract!" crash
         System.setProperty("java.util.Arrays.useLegacyMergeSort", "true");
 
         //Turn off the Java 2D system's use of Direct3D to improve rendering speed (particularly when Full Screen)
         System.setProperty("sun.java2d.d3d", "false");
+        
+        
 
         //setup GUI interface
         GuiBase.setInterface(new GuiDesktop());
@@ -51,17 +56,21 @@ public final class Main {
             Singletons.getControl().initialize();
             return;
         }
-
+        
+        //create the brains for the AI that is passed between games
+        NNevalNet nn = new NNevalNet();
+        
         // command line startup here
         String mode = args[0].toLowerCase();
         
         switch(mode) {
+        
             case "sim":
                 SimulateMatch.simulate(args);
                 break;
                 
             case "simai":
-                SimulateMatch.simulatelearn(args);
+                SimulateMatch.simulatelearn(args, nn);
                 break;
 
             case "parse":

@@ -3,7 +3,7 @@ package forge.learnedai.ability;
 
 import forge.learnedai.LearnedAiController;
 import forge.learnedai.ComputerUtilMana;
-import forge.learnedai.PlayerControllerAi;
+import forge.learnedai.LearnedPlayerControllerAi;
 import forge.learnedai.SpellAbilityAi;
 import forge.game.ability.AbilityFactory;
 import forge.game.card.Card;
@@ -69,7 +69,7 @@ public class RepeatAi extends SpellAbilityAi {
 
         repeat.setActivatingPlayer(sa.getActivatingPlayer());
         ((AbilitySub) repeat).setParent(sa);
-        LearnedAiController aic = ((PlayerControllerAi)ai.getController()).getAi();
+        LearnedAiController aic = ((LearnedPlayerControllerAi)ai.getController()).getAi();
         return aic.doTrigger(repeat, mandatory);
     }
 }

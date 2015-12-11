@@ -1,6 +1,6 @@
 package forge.learnedai.simulation;
 
-import forge.learnedai.simulation.GameStateEvaluator.Score;
+import forge.learnedai.simulation.LearnedGameStateEvaluator.Score;
 import forge.game.spellability.SpellAbility;
 
 public class SimulationController {
@@ -16,19 +16,19 @@ public class SimulationController {
     }
 
     public void push(SpellAbility sa) {
-        GameSimulator.debugPrint("Recursing DEPTH=" + recursionDepth);
-        GameSimulator.debugPrint("  With: " + sa);
+        LearnedGameSimulator.debugPrint("Recursing DEPTH=" + recursionDepth);
+        LearnedGameSimulator.debugPrint("  With: " + sa);
         recursionDepth++;
     }
 
     public void pop(Score score, SpellAbility nextSa) {
         recursionDepth--;
-        GameSimulator.debugPrint("DEPTH"+recursionDepth+" best score " + score + " " + nextSa);
+        LearnedGameSimulator.debugPrint("DEPTH"+recursionDepth+" best score " + score + " " + nextSa);
     }
 
     public void printState(Score score, SpellAbility origSa) {
         for (int i = 0; i < recursionDepth; i++)
             System.err.print("  ");
-        System.err.println(recursionDepth + ": [" + score.value + "] " + SpellAbilityPicker.abilityToString(origSa));
+        System.err.println(recursionDepth + ": [" + score.value + "] " + LearnedSpellAbilityPicker.abilityToString(origSa));
     }
 }

@@ -10,6 +10,7 @@ import forge.LobbyPlayer;
 import forge.ai.AiProfileUtil;
 import forge.ai.LobbyPlayerAi;
 import forge.learnedai.LobbyPlayerLearnedAi;
+import forge.learnedai.NNinput.NNevalNet;
 import forge.model.FModel;
 import forge.properties.ForgePreferences.FPref;
 import forge.util.GuiDisplayUtil;
@@ -66,20 +67,20 @@ public final class GamePlayerUtil {
     }
 
     //learned AI player creation stuff
-    public final static LobbyPlayer createLearnedAiPlayer() {
-        return createLearnedAiPlayer(GuiDisplayUtil.getRandomAiName());
+    public final static LobbyPlayer createLearnedAiPlayer(NNevalNet nn) {
+        return createLearnedAiPlayer(GuiDisplayUtil.getRandomAiName(),nn);
     }
-    public final static LobbyPlayer createLearnedAiPlayer(final String name) {
+    public final static LobbyPlayer createLearnedAiPlayer(final String name, NNevalNet nn) {
         final int avatarCount = GuiBase.getInterface().getAvatarCount();
-        return createLearnedAiPlayer(name, avatarCount == 0 ? 0 : MyRandom.getRandom().nextInt(avatarCount));
+        return createLearnedAiPlayer(name, avatarCount == 0 ? 0 : MyRandom.getRandom().nextInt(avatarCount), nn);
     }
-    public final static LobbyPlayer createLearnedAiPlayer(final String name, final int avatarIndex) {
-        return createLearnedAiPlayer(name, avatarIndex, null);
+    public final static LobbyPlayer createLearnedAiPlayer(final String name, final int avatarIndex, NNevalNet nn) {
+        return createLearnedAiPlayer(name, avatarIndex, null, nn);
     }
     
     //this one needs the particular work
-    public final static LobbyPlayer createLearnedAiPlayer(final String name, final int avatarIndex, final Set<AIOption> options) {
-        final LobbyPlayerLearnedAi player = new LobbyPlayerLearnedAi(name, options);
+    public final static LobbyPlayer createLearnedAiPlayer(final String name, final int avatarIndex, final Set<AIOption> options, NNevalNet nn) {
+        final LobbyPlayerLearnedAi player = new LobbyPlayerLearnedAi(name, options,nn);
 
         String lastProfileChosen = FModel.getPreferences().getPref(FPref.UI_CURRENT_AI_PROFILE);
         player.setRotateProfileEachGame(lastProfileChosen.equals(AiProfileUtil.AI_PROFILE_RANDOM_DUEL));

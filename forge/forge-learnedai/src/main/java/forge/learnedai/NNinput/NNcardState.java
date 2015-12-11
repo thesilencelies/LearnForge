@@ -22,6 +22,7 @@ import com.github.neuralnetworks.training.TrainingInputProviderImpl;
 import com.github.neuralnetworks.training.TrainingInputData;
 import com.github.neuralnetworks.calculation.neuronfunctions.TensorFunction;
 import com.github.neuralnetworks.tensor.Tensor;
+import com.github.neuralnetworks.tensor.TensorFactory;
 
 public class NNcardState implements TrainingInputData {
 	
@@ -60,7 +61,7 @@ public NNcardState(Player p, float[] target){
 	super();
 	me = p;
 	evalSize = 1200;	//Standard's card pool
-	inputSize = 3*evalsize;
+	inputSize = 3*evalSize;
     currentZone = new float[evalSize];
     currentInput = new float[inputSize];
     currentTarget = target;
@@ -75,19 +76,16 @@ private float[] zoneRead(int i){
 	switch (i){
 		case 0:
 			return zoneRead(ZoneType.Battlefield, me);
-			break;
 		case 1:
 			return zoneRead(ZoneType.Battlefield, opp);
-			break;
 		case 2:
 			return zoneRead(ZoneType.Stack, me);
-			break;
 		case 3:
 			return zoneRead(ZoneType.Stack, opp);
-			break;
 		case 4:
 			return zoneRead(ZoneType.Hand, me);
-			break;
+		default:
+			return zoneRead(ZoneType.Battlefield, me);	
 			//should I consider the graveyard at some point - may lead to over-fitting
 	}
 }
@@ -133,7 +131,12 @@ public Tensor getTarget(){
 		}
 	}
 	
-	return currentInput;
+	return TensorFactory.tensor(currentTarget,0, currentTarget.length	);
+}
+@Override
+public Tensor getInput() {
+	// TODO Auto-generated method stub
+	return TensorFactory.tensor(currentInput,0,currentInput.length);
 }
 
 }

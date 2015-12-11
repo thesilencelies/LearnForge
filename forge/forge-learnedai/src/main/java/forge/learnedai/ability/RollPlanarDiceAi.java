@@ -3,7 +3,7 @@ package forge.learnedai.ability;
 
 import forge.learnedai.LearnedAiController;
 import forge.learnedai.AiProps;
-import forge.learnedai.PlayerControllerAi;
+import forge.learnedai.LearnedPlayerControllerAi;
 import forge.learnedai.SpellAbilityAi;
 import forge.game.card.Card;
 import forge.game.phase.PhaseType;
@@ -18,7 +18,7 @@ public class RollPlanarDiceAi extends SpellAbilityAi {
      */
     @Override
     protected boolean canPlayAI(Player ai, SpellAbility sa) {
-        LearnedAiController aic = ((PlayerControllerAi)ai.getController()).getAi();
+        LearnedAiController aic = ((LearnedPlayerControllerAi)ai.getController()).getAi();
         Card plane = sa.getHostCard();
 
         boolean decideToRoll = false;

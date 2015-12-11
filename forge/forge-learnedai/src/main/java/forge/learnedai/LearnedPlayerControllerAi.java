@@ -8,6 +8,7 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
 
 import forge.LobbyPlayer;
+import forge.learnedai.NNinput.NNevalNet;
 import forge.learnedai.ability.ChangeZoneAi;
 import forge.learnedai.ability.CharmAi;
 import forge.learnedai.ability.ProtectAi;
@@ -62,13 +63,13 @@ import java.util.*;
  *
  * Handles phase skips for now.
  */
-public class PlayerControllerAi extends PlayerController {
+public class LearnedPlayerControllerAi extends PlayerController {
     private final LearnedAiController brains;
 
-    public PlayerControllerAi(Game game, Player p, LobbyPlayer lp) {
+    public LearnedPlayerControllerAi(Game game, Player p, LobbyPlayer lp, NNevalNet nn) {
         super(game, p, lp);
 
-        brains = new LearnedAiController(p, game);
+        brains = new LearnedAiController(p, game, nn);
     }
 
     public void allowCheatShuffle(boolean value){
@@ -298,7 +299,7 @@ public class PlayerControllerAi extends PlayerController {
         if (mayChooseNewTargets) {
             if (copySA instanceof Spell) {
                 Spell spell = (Spell) copySA;
-                ((PlayerControllerAi) player.getController()).getAi().canPlayFromEffectAI(spell, true, true);
+                ((LearnedPlayerControllerAi) player.getController()).getAi().canPlayFromEffectAI(spell, true, true);
             }
             else {
                 getAi().canPlaySa(copySA);

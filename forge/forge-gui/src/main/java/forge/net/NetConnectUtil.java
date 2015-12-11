@@ -109,7 +109,7 @@ public class NetConnectUtil {
         final FGameClient client = new FGameClient(FModel.getPreferences().getPref(FPref.PLAYER_NAME), "0", gui);
         onlineLobby.setClient(client);
         chatInterface.setGameClient(client);
-        final ClientGameLobby lobby = new ClientGameLobby();
+        final ClientGameLobby lobby = new ClientGameLobby(null);
         final ILobbyView view =  onlineLobby.setLobby(lobby);
         lobby.setListener(view);
         client.addLobbyListener(new ILobbyListener() {

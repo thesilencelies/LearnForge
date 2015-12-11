@@ -89,7 +89,7 @@ public class AiCostDecision extends CostDecisionMakerBase {
             return PaymentDecision.card(CardLists.getRandomSubList(new CardCollection(hand), c));
         }
         else {
-            final LearnedAiController aic = ((PlayerControllerAi)player.getController()).getAi();
+            final LearnedAiController aic = ((LearnedPlayerControllerAi)player.getController()).getAi();
             return PaymentDecision.card(aic.getCardsToDiscard(c, type.split(";"), ability));
         }
     }
@@ -478,7 +478,7 @@ public class AiCostDecision extends CostDecisionMakerBase {
             }
         }
 
-        final LearnedAiController aic = ((PlayerControllerAi)player.getController()).getAi();
+        final LearnedAiController aic = ((LearnedPlayerControllerAi)player.getController()).getAi();
         return PaymentDecision.card(aic.getCardsToDiscard(c, type.split(";"), ability));
     }
 

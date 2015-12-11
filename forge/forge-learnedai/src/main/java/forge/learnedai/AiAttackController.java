@@ -557,9 +557,9 @@ public class AiAttackController {
         }
 
         // Cards that are remembered to attack anyway (e.g. temporarily stolen creatures)
-        if (ai.getController() instanceof PlayerControllerAi) {
+        if (ai.getController() instanceof LearnedPlayerControllerAi) {
             // Only do this if |ai| is actually an AI - as we could be trying to predict how the human will attack.
-            LearnedAiCardMemory aiMemory = ((PlayerControllerAi) ai.getController()).getAi().getCardMemory();
+            LearnedAiCardMemory aiMemory = ((LearnedPlayerControllerAi) ai.getController()).getAi().getCardMemory();
             for (Card attacker : this.attackers) {
                 if (aiMemory.isRememberedCard(attacker, LearnedAiCardMemory.MemorySet.MANDATORY_ATTACKERS)) {
                     combat.addAttacker(attacker, defender);
