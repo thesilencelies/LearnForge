@@ -1,46 +1,58 @@
 package forge.learnedai.NNinput;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.github.neuralnetworks.training.TrainingInputData;
 import com.github.neuralnetworks.training.TrainingInputProviderImpl;
 
 //this may not even really be needed.
 //would it be better to create the input externally and attach it, or run that in here?
 
 public class NNcardStateProvider extends TrainingInputProviderImpl {
-
-	private static final long serialVersionUID = 1L;
-	private float[] currentInput;
-    private float[] currentTarget;
+	private static final long serialVersionUID = 3247533855332357907L;
+    private List<NNcardState> exp;
+    private Iterator<NNcardState> inputit,targit;
 
 public NNcardStateProvider(){
 	super();
+	exp = new ArrayList<NNcardState>();
+	inputit = exp.iterator();
+	targit = exp.iterator();
 }
 
-@Override
-public float[] getNextInput(){
-
-	//TODO
-	return currentInput;
-}
-
-
-
-@Override
-public float[] getNextTarget(){	
- 
-	return currentTarget;
-}
-
-public void setNextTarget (float[] target){
-	currentTarget = target;
+public void SetReplayBatch(List<NNcardState> bat){
+	exp = bat;
+	inputit = exp.iterator();
+	targit = exp.iterator();
 }
 
 @Override
 public void reset() {
-super.reset();
+//currentInput = 0;	I feel like this line is needed
+inputit = exp.iterator();
+targit = exp.iterator();
 }
 @Override
 public int getInputSize() {
-return currentInput.length;
+	return exp.size();
 }
+protected TrainingInputData getNextUnmodifiedInput() {
+	if(!inputit.hasNext()) reset();
+	
+	return inputit.next();
+}
+@Override
+public float[] getNextInput() {
+	return getNextUnmodifiedInput().getInput().getElements();
+}
+
+@Override
+public float[] getNextTarget() {
+	if(!targit.hasNext()) reset();
+	return targit.next().getTarget().getElements();
+}
+
 
 }
