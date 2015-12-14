@@ -9,6 +9,7 @@ import forge.interfaces.ILobbyListener;
 import forge.interfaces.ILobbyView;
 import forge.interfaces.IPlayerChangeListener;
 import forge.interfaces.IUpdateable;
+import forge.learnedai.NNinput.NNevalNet;
 import forge.match.GameLobby.GameLobbyData;
 import forge.model.FModel;
 import forge.net.client.ClientGameLobby;
@@ -41,7 +42,7 @@ public class NetConnectUtil {
     public static ChatMessage host(final IOnlineLobby onlineLobby, final IOnlineChatInterface chatInterface) {
         final int port = ForgeProfileProperties.getServerPort();
         final FServerManager server = FServerManager.getInstance();
-        final ServerGameLobby lobby = new ServerGameLobby();
+        final ServerGameLobby lobby = new ServerGameLobby(FModel.nn);
         final ILobbyView view = onlineLobby.setLobby(lobby);
 
         server.startServer(port);
@@ -109,7 +110,7 @@ public class NetConnectUtil {
         final FGameClient client = new FGameClient(FModel.getPreferences().getPref(FPref.PLAYER_NAME), "0", gui);
         onlineLobby.setClient(client);
         chatInterface.setGameClient(client);
-        final ClientGameLobby lobby = new ClientGameLobby(null);
+        final ClientGameLobby lobby = new ClientGameLobby(FModel.nn);
         final ILobbyView view =  onlineLobby.setLobby(lobby);
         lobby.setListener(view);
         client.addLobbyListener(new ILobbyListener() {

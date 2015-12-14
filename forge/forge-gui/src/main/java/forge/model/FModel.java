@@ -33,6 +33,7 @@ import forge.game.card.CardUtil;
 import forge.gauntlet.GauntletData;
 import forge.interfaces.IProgressBar;
 import forge.itemmanager.ItemManagerConfig;
+import forge.learnedai.NNinput.NNevalNet;
 import forge.limited.GauntletMini;
 import forge.planarconquest.ConquestController;
 import forge.planarconquest.ConquestPreferences;
@@ -85,8 +86,13 @@ public final class FModel {
     private static IStorage<CardBlock> fantasyBlocks;
     private static IStorage<QuestWorld> worlds;
     private static GameFormat.Collection formats;
+    
+    public static NNevalNet nn;
 
     public static void initialize(final IProgressBar progressBar) {
+        //TODO: make this do proper loading or have model parameters from command line
+        nn = new NNevalNet();
+        
         ImageKeys.initializeDirs(
                 ForgeConstants.CACHE_CARD_PICS_DIR, ForgeConstants.CACHE_CARD_PICS_SUBDIR,
                 ForgeConstants.CACHE_TOKEN_PICS_DIR, ForgeConstants.CACHE_ICON_PICS_DIR,
@@ -103,6 +109,7 @@ public final class FModel {
         catch (final Exception exn) {
             throw new RuntimeException(exn);
         }
+
 
         Localizer.getInstance().initialize(FModel.getPreferences().getPref(FPref.UI_LANGUAGE), ForgeConstants.LANG_DIR);
 

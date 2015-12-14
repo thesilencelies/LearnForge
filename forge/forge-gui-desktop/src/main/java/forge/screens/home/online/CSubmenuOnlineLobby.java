@@ -11,6 +11,7 @@ import forge.gui.FNetOverlay;
 import forge.gui.SOverlayUtils;
 import forge.gui.framework.EDocID;
 import forge.gui.framework.ICDoc;
+import forge.learnedai.NNinput.NNevalNet;
 import forge.menus.IMenuProvider;
 import forge.menus.MenuUtil;
 import forge.net.ChatMessage;

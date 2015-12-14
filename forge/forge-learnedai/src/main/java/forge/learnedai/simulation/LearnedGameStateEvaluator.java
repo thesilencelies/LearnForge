@@ -66,7 +66,7 @@ public class LearnedGameStateEvaluator {
 
         public Score(double score) {
             this.value = score;
-            summonSickValue = score;
+            summonSickValue = 0;
         }
 
         public boolean equals(Score other) {

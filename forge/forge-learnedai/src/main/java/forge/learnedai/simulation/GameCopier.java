@@ -10,6 +10,7 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Lists;
 
 import forge.LobbyPlayer;
+import forge.ai.LobbyPlayerAi;
 import forge.learnedai.LobbyPlayerLearnedAi;
 import forge.card.CardStateName;
 import forge.game.Game;
@@ -136,8 +137,9 @@ public class GameCopier {
     private RegisteredPlayer clonePlayer(RegisteredPlayer p) {
         RegisteredPlayer clone = new RegisteredPlayer(p.getDeck());
         LobbyPlayer lp = p.getPlayer();
-        if (!(lp instanceof LobbyPlayerLearnedAi)) {
-            lp = new LobbyPlayerLearnedAi(p.getPlayer().getName(), null, ((LobbyPlayerLearnedAi)lp).getNN());
+        if (!(lp instanceof LobbyPlayerLearnedAi) && !(lp instanceof LobbyPlayerAi)) {
+        	//use the default ai to model opponents
+            lp = new LobbyPlayerAi(p.getPlayer().getName(), null);
         }
         clone.setPlayer(lp);
         return clone;

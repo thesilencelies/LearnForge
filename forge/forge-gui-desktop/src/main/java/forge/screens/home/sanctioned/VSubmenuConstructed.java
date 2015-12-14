@@ -13,6 +13,7 @@ import forge.interfaces.IPlayerChangeListener;
 import forge.learnedai.NNinput.NNevalNet;
 import forge.match.GameLobby;
 import forge.match.LocalLobby;
+import forge.model.FModel;
 import forge.net.event.UpdateLobbyPlayerEvent;
 import forge.screens.home.EMenuGroup;
 import forge.screens.home.IVSubmenu;
@@ -31,9 +32,8 @@ public enum VSubmenuConstructed implements IVSubmenu<CSubmenuConstructed> {
     // Fields used with interface IVDoc
     private DragCell parentCell;
     private final DragTab tab = new DragTab("Constructed Mode");
-    private NNevalNet nn;
 
-    private final GameLobby lobby = new LocalLobby(nn);
+    private final GameLobby lobby = new LocalLobby(FModel.nn);
     private final VLobby vLobby = new VLobby(lobby);
     private VSubmenuConstructed() {
         lobby.setListener(vLobby);
@@ -45,9 +45,6 @@ public enum VSubmenuConstructed implements IVSubmenu<CSubmenuConstructed> {
         });
 
         vLobby.update(false);
-        
-        //we have to load the NN here as well, due to how the GUI works
-        nn = new NNevalNet();
     }
 
     public VLobby getLobby() {

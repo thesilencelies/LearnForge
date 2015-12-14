@@ -6,14 +6,15 @@ import org.apache.commons.lang3.StringUtils;
 
 import forge.AIOption;
 import forge.interfaces.IGuiGame;
+import forge.learnedai.NNinput.NNevalNet;
 import forge.match.GameLobby;
 import forge.match.LobbySlot;
 import forge.match.LobbySlotType;
 
 public final class ServerGameLobby extends GameLobby {
 
-    public ServerGameLobby() {
-        super(true, null);
+    public ServerGameLobby(NNevalNet nn) {
+        super(true, nn);
         addSlot(new LobbySlot(LobbySlotType.LOCAL, localName(), localAvatarIndices()[0], 0, true, false, Collections.<AIOption>emptySet()));
         addSlot(new LobbySlot(LobbySlotType.OPEN, null, -1, 1, false, false, Collections.<AIOption>emptySet()));
     }
