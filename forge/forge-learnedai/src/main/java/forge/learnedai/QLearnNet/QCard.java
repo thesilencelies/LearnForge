@@ -4,10 +4,10 @@ import com.github.neuralnetworks.tensor.Matrix;
 
 import forge.game.card.Card;
 
-public abstract class QCard {
+public abstract interface QCard {
 	
 	//matrix of weights (a 1 x m matrix)
-	public Matrix weights;
+	public Matrix getweights();
 	//some function to load the matrix of weights??
-	public double quantity;
+	public double getQuantity();
 }

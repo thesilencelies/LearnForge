@@ -6,13 +6,13 @@ import java.lang.String;
 import com.github.neuralnetworks.tensor.Matrix;
 import com.github.neuralnetworks.tensor.TensorFactory;
 
-public class oppQCard extends QCard{
+public class oppQCard implements QCard{
 	public int noObserve;
 	public boolean THISGAME;
 	public Card cardid;
 	
 	//loads the details of the card from the given file
-	public oppQCard(String filename){
+	private oppQCard(String filename){
 		//TODO
 	}
 	
@@ -27,5 +27,14 @@ public class oppQCard extends QCard{
 		noObserve = nob;
 		THISGAME = TG;
 		weights = DM;
+	}
+	Matrix weights;
+	@Override
+	public Matrix getweights() {
+		return weights ;
+	}
+	@Override
+	public double getQuantity() {
+		return noObserve;
 	}
 }

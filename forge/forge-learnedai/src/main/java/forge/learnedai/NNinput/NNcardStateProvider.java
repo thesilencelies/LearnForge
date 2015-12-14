@@ -7,8 +7,6 @@ import java.util.List;
 import com.github.neuralnetworks.training.TrainingInputData;
 import com.github.neuralnetworks.training.TrainingInputProviderImpl;
 
-//this may not even really be needed.
-//would it be better to create the input externally and attach it, or run that in here?
 
 public class NNcardStateProvider extends TrainingInputProviderImpl {
 	private static final long serialVersionUID = 3247533855332357907L;

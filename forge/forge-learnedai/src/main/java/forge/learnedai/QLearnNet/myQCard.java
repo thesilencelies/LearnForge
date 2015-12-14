@@ -5,7 +5,7 @@ import com.github.neuralnetworks.tensor.TensorFactory;
 
 import forge.game.card.Card;
 
-public class myQCard extends QCard {
+public class myQCard implements QCard {
 	
 	public Card cardid;
 	public myQCard(Card cid, int nneuron){
@@ -15,5 +15,14 @@ public class myQCard extends QCard {
 	public myQCard(Card cid, Matrix DM){
 		cardid = cid;
 		weights = DM;
+	}
+	Matrix weights;
+	@Override
+	public Matrix getweights() {
+		return weights ;
+	}
+	@Override
+	public double getQuantity() {
+		return 0;
 	}
 }

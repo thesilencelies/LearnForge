@@ -1,6 +1,7 @@
 package forge.learnedai.QLearnNet;
 
 import forge.learnedai.LearnedAiCardMemory;
+import forge.learnedai.NNinput.NNcardState;
 import forge.game.card.Card;
 import forge.game.card.CardCollectionView;
 import forge.game.player.Player;
@@ -22,126 +23,85 @@ import java.io.IOException;
 //probably deprecated until we condsider deckbuiling...
 public class QGameState {
 	
-	private HashMap<String, Integer> obscards;
-	private int highestusedind = 0;
-	private Player me;
-	
-    private int evalSize;
-    public int inputSize;
-    private float[] currentZone;
-	
-	
-    protected int getEffectivePower(final Card c) {
+    protected static int getEffectivePower(final Card c) {
         return c.getNetCombatDamage();
     }
-    protected int getEffectiveToughness(final Card c) {
+    protected static int getEffectiveToughness(final Card c) {
         return c.getNetToughness();
     }
-
-	
-	static int nneuron;
-	static int maxNoOppcards;
-	//fixed order list of cards in your deck
-	public Vector<myQCard> myDeck;
-
-	//some mutable fixed order list of cards you've seen your opponents play
-	public Vector<oppQCard> considerCards;
-	
-	//life totals
-	private metaQCard mylifetot;
-	private metaQCard opplifetot;	//currently will only consider 2 player games
-	
-	//relevant phase distinctions
-	private metaQCard Phase;
-	private metaQCard myTurn;
-
-	
-	//local (dynamic) storage for mid term memory of cards (shouldn't take up too much space if we're limited to standard)
-	 private Set<oppQCard> observedcards = new HashSet<oppQCard>();
-	
-	//function called whenever an opponent casts a spell
-	public void spellcastcheck(Card spell){
-	//TODO	
-	}
-	 
-	//function to shift a newly observed card to the current use list
-	private void obsSpellNotConsidered(Card spell){
-		//TODO
-	}
-	
-	//function to allow the backprop to edit the weights on the cards here
-	public void adjustWeights(Vector<QCard> adjustedweights){
-		//TODO
-		//adjust state weights
-	}
-	
-	//function to save the card data currently in memory
-	public void savecards(String filenames, String Cardnamesfile) throws IOException{
-		//concantate the weights
-		//TODO
-		//construct the cardnames file
-		
-	}
-	//function to load previously saved card data
-	public void loadcards (String weightsfile, String cardfile)throws IOException{
-		
-		//TODO
-	}
+    
 	//function to check the current board state and produce a correct list of observation values and return them
 	//this should also look at the stack
-	public Vector<? extends QCard> ProduceGamestate(){
-		//TODO
-		
-		return myDeck;
-	}
 	
-
-private float[] zoneRead(int i){
-	Player opp = me.getOpponent();
-	switch (i){
-		case 0:
-			return zoneRead(ZoneType.Battlefield, me);
-		case 1:
-			return zoneRead(ZoneType.Battlefield, opp);
-		case 2:
-			return zoneRead(ZoneType.Stack, me);
-		case 3:
-			return zoneRead(ZoneType.Stack, opp);
-		case 4:
-			return zoneRead(ZoneType.Hand, me);
-			//should I consider the graveyard at some point - may lead to over-fitting
-	}
-	return new float[1200];
-}
-
-private float [] zoneRead(ZoneType z, Player p){
-	CardCollectionView pcards = p.getCardsIn(z);
-	currentZone = new float[evalSize];
-	Iterator<Card> pi = pcards.iterator();
-	int  k;
-	while (pi.hasNext()){
-		Card c = pi.next();
-		if(obscards.get(c.getName()) == null){
-			obscards.put(c.getName(),highestusedind);
-			currentZone[highestusedind]++;
-			highestusedind++;
+	public static NNcardState ProduceGamestate(Player me){
+		Player opp = me.getOpponent();
+		//put in the evaluation of the creatures
+		Vector<QCard> mycards = new Vector<QCard>();
+		CardCollectionView mystuff = me.getCardsIn(ZoneType.Battlefield);
+		Iterator<Card> it = mystuff.iterator();
+		while (it.hasNext()){
+			Card c = it.next();
+			if(c.isCreature()){
+				mycards.addElement(new myQCard(c,assessCreature(c)));
+			}
 		}
-		else{
-			currentZone[obscards.get(c.getName())]++;
+		//evaluate what's left in hand (should be useful to encourage preserving valuable resources
+		mystuff = me.getCardsIn(ZoneType.Hand);
+		it = mystuff.iterator();
+		while (it.hasNext()){
+			Card c = it.next();
+			mycards.addElement(new myQCard(c,assessHandCard(c)));
 		}
+		
+		//put in the game state variables
+		float[][] statevals = new float[1][20];
+		statevals[0][17] = me.getLife();
+		statevals[0][18] = opp.getLife();
+		statevals[0][19] = me.getTurn();
+		mycards.addElement(new metaQCard(TensorFactory.matrix(statevals)));
+		
+		Vector<QCard> oppcards = new Vector<QCard>();
+		CardCollectionView oppstuff = opp.getCardsIn(ZoneType.Battlefield);
+		it = oppstuff.iterator();
+		while (it.hasNext()){
+			Card c = it.next();
+			if(c.isCreature()){
+				oppcards.addElement(new myQCard(c,assessCreature(c)));
+			}
+		}
+		
+		//available mana is considered in the 18-19 slots of oppQCards
+		statevals = new float[1][20];
+		statevals[0][17] = me.getManaPool().totalMana();
+		statevals[0][18] = opp.getManaPool().totalMana();
+		statevals[0][19] = opp.getCardsIn(ZoneType.Hand).size();
+		oppcards.addElement(new metaQCard(TensorFactory.matrix(statevals)));
+		
+		//ideally I'd run the features throught a conv net that would produce the featureset directly, but I'm not sure how to train that atm
+		return new NNcardState(mycards,oppcards);
 	}
-	return currentZone;
-}
 
+	private static Matrix assessHandCard(final Card c){
+		//use coarse features - do they target?, do they boardwipe?, what's their CMC?
+		
+		//uses the remaining slots left over from below to consider the cards left in hand
+		float[][] weights = new float[1][20];
+		weights[0][13] = c.getCMC();
+		if(c.isCreature()) weights[0][14] = 1;
+		if(c.hasKeyword("Target")) weights[0][15]=1;
+		if(c.isLand())weights[0][16] =1;
+		return TensorFactory.matrix(weights);
+	}
 
+	
 	//not currently used, but maybe later - for now we'll look ahead to stack resolution to understand our opponent's spells (and indeed the consequence of our own)
-	private Matrix AssessSpell(final Card c){
+	private static Matrix assessSpell(final Card c){
 		return null;
 	}
 	
 	//possibly a useful featureset for creature assessment...
-	private Matrix AssessCreature(final Card c){
-		float[][] weights = new float[1][14];
+	private static Matrix assessCreature(final Card c){
+		float[][] weights = new float[1][20];
         int power = getEffectivePower(c);
         final int toughness = getEffectiveToughness(c);
         for (String keyword : c.getKeywords()) {
@@ -159,71 +119,55 @@ private float [] zoneRead(ZoneType z, Player p){
         if (c.hasKeyword("Double Strike")) {
         	power = power *2;
         }
-        weights[1][0] = power;
-        weights[1][1] = toughness;
-        weights[1][2] = c.getCMC();
+        weights[0][0] = power;
+        weights[0][1] = toughness;
+        weights[0][2] = c.getCMC();
 
         // Evasion keywords
         if (c.hasKeyword("Flying") || c.hasKeyword("Unblockable") || c.hasKeyword("You may have CARDNAME assign its combat damage as though it weren't blocked.") ||
         	c.hasKeyword("Intimidate") || c.hasStartOfKeyword("Menace") || c.hasKeyword("Trample")) {
-        	weights[1][3] = 1;
+        	weights[0][3] = 1;
         }
 
         // Other good keywords
         if (power > 0) {
             if (c.hasKeyword("Double Strike") ||c.hasKeyword("First Strike") ) {
-            	weights[1][4] = 1;
+            	weights[0][4] = 1;
             } 
             if (c.hasKeyword("Deathtouch")) {
-            	weights[1][5] = 1;
+            	weights[0][5] = 1;
             }
             if (c.hasKeyword("Lifelink")) {
-            	weights[1][6] = 1;
+            	weights[0][6] = 1;
             }
         }
         // Defensive Keywords
         if (c.hasKeyword("Reach") || c.hasKeyword("Flying")) {
-        	weights[1][7] = 1;
+        	weights[0][7] = 1;
         }
 
         // Protection
         if (c.hasKeyword("Indestructible") || c.hasKeyword("Prevent all combat damage that would be dealt to CARDNAME.")) {
-        	weights[1][8] = 1;
+        	weights[0][8] = 1;
         }
         if (c.hasKeyword("Hexproof") || c.hasStartOfKeyword("Protection")) {
-        	weights[1][9] = 1;
+        	weights[0][9] = 1;
         }
 
         // Bad keywords
         if (c.hasKeyword("Defender") || c.hasKeyword("CARDNAME can't attack.")) {
-        	weights[1][10] = 1;
+        	weights[0][10] = 1;
         }
         if (c.hasKeyword("CARDNAME can't block.") || c.hasKeyword("CARDNAME attacks each turn if able.")
                 || c.hasKeyword("CARDNAME attacks each combat if able.")) {
-        	weights[1][11] = 1 ;
+        	weights[0][11] = 1 ;
         }
 
 
         if (c.isUntapped()) {
-        	weights[1][12] = 1;
+        	weights[0][12] = 1;
         }
 
 		return TensorFactory.matrix(weights);
-	}
-	
-	public QGameState(int maxN, int width){
-		maxNoOppcards = maxN;
-		nneuron = 19;  //width;   //set at a fixed number for now
-		mylifetot = new metaQCard(nneuron);
-		opplifetot = new metaQCard(nneuron);
-		Phase = new metaQCard(nneuron);
-		myTurn = new metaQCard(nneuron);
-		
-		evalSize = 1200;	//Standard's card pool
-		inputSize = 1;		//only one event considered at a time right now
-	    currentZone = new float[evalSize];
-	    //is this variable needed?
-	    obscards = new HashMap<String, Integer>(evalSize);
-	    highestusedind = 0;
 	}
 }

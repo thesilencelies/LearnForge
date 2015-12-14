@@ -134,7 +134,7 @@ public class LearnedGameSimulator {
         SpellAbility sa = findSaInSimGame(origSa);
         if (sa == null) {
             System.err.println("SA not found! " + sa);
-            return new Score(Integer.MIN_VALUE, Integer.MIN_VALUE);
+            return new Score(Integer.MIN_VALUE);
         }
 
         debugPrint("Found SA " + sa + " on host card " + sa.getHostCard() + " with owner:"+ sa.getHostCard().getOwner());
