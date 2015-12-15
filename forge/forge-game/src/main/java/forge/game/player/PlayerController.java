@@ -19,6 +19,7 @@ import forge.deck.Deck;
 import forge.game.Game;
 import forge.game.GameEntity;
 import forge.game.GameObject;
+import forge.game.GameOutcome;
 import forge.game.GameOutcome.AnteResult;
 import forge.game.GameType;
 import forge.game.card.Card;
@@ -244,4 +245,8 @@ public abstract class PlayerController {
     public AnteResult getAnteResult() {
         return game.getOutcome().anteResult.get(player);
     }
+
+	public abstract boolean isLearnedAI();
+
+	public abstract void learnGameResult(boolean b);
 }

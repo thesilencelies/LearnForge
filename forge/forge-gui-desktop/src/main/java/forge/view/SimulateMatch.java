@@ -63,7 +63,7 @@ public class SimulateMatch {
         if(args.length < 4 ) {
             System.out.println("Syntax: forge.exe simai <learnedainame[.rai]> <decklearned[.dck]> <decktest[.dck]> [N]");
             System.out.println("\tsimai - stands for simulation ai mode");
-            System.out.println("\tlearnedainame - name of the ai to be trained");
+            System.out.println("\tlearnedainame - name of the ai to be trained");	//this is currently not needed at all (may be later tho)
             System.out.println("\tdecklearned (or decktest) - constructed deck name or filename (has to be quoted when contains multiple words)");
             System.out.println("\tdeck is treated as file if it ends with a dot followed by three numbers or letters");
             System.out.println("\tN - number of games, defaults to 1");

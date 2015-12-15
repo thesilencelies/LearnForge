@@ -35,7 +35,9 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 
+import forge.learnedai.NNinput.NNcardState;
 import forge.learnedai.NNinput.NNevalNet;
+import forge.learnedai.QLearnNet.QGameState;
 import forge.learnedai.simulation.LearnedGameStateEvaluator;
 import forge.learnedai.simulation.LearnedSpellAbilityPicker;
 import forge.card.CardStateName;
@@ -108,8 +110,20 @@ public class LearnedAiController {
     private boolean useSimulation;
     private LearnedSpellAbilityPicker simPicker;
 
+    private NNevalNet nn;
+    
+    //memory of states to use for learning
+    private NNcardState prevstate, currentstate;
+
     public boolean canCheatShuffle() {
         return cheatShuffle;
+    }
+    
+    public void LearnGameResult(boolean win){
+    	prevstate = currentstate.clone();
+    	currentstate = QGameState.ProduceGamestate(player);
+    	int reward = win? 1 : -1;
+    	nn.ObserveAndTrain(prevstate, currentstate, reward);
     }
 
     public void allowCheatShuffle(boolean canCheatShuffle) {
@@ -132,8 +146,9 @@ public class LearnedAiController {
         return memory;
     }
 
-    public LearnedAiController(final Player computerPlayer, final Game game0, NNevalNet nn) {
-        player = computerPlayer;
+    public LearnedAiController(final Player computerPlayer, final Game game0, NNevalNet _nn) {
+        nn = _nn;
+    	player = computerPlayer;
         game = game0;
         memory = new LearnedAiCardMemory();
         simPicker = new LearnedSpellAbilityPicker(game, player, new LearnedGameStateEvaluator(nn));
@@ -946,8 +961,15 @@ public class LearnedAiController {
     }
 
     public List<SpellAbility> chooseSpellAbilityToPlay() {
+    	if(currentstate == null){
+    		currentstate = QGameState.ProduceGamestate(player);
+    	}
         final PhaseType phase = game.getPhaseHandler().getPhase();
 
+        prevstate = currentstate.clone();
+        currentstate = QGameState.ProduceGamestate(player);
+        nn.ObserveAndTrain(prevstate, currentstate, 0);
+        
         if (game.getStack().isEmpty() && phase.isMain()) {
             Log.debug("Computer " + phase.nameForUi);
             CardCollection landsWannaPlay = getLandsToPlay();

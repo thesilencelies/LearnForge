@@ -884,4 +884,14 @@ public class PlayerControllerAi extends PlayerController {
     public void cancelAwaitNextInput() {
         // Do nothing
     }
+
+	@Override
+	public boolean isLearnedAI() {
+		return false;
+	}
+
+	@Override
+	public void learnGameResult(boolean b) {
+		//not supposed to do anything
+	}
 }

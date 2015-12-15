@@ -1471,8 +1471,15 @@ public class GameAction {
             //</THIS CODE WILL WORK WITH PHASE = NULL>
 
             game.getPhaseHandler().startFirstTurn(first);
-
-            //after game ends, ensure Auto-Pass canceled for all players so it doesn't apply to next game
+            //after game end, if there is a learned AI, let it learn the result
+        	Iterator<Player> it = game.getRegisteredPlayers().iterator();
+        	while(it.hasNext()){
+        		Player p = it.next();
+        		if(p.getController().isLearnedAI()){
+        			p.getController().learnGameResult(game.getOutcome().getWinningPlayer() == p);
+        		}
+        	}
+            //after game ends, ensure Auto-Pass cancelled for all players so it doesn't apply to next game
             for (Player p : game.getRegisteredPlayers()) {
                 p.getController().autoPassCancel();
             }

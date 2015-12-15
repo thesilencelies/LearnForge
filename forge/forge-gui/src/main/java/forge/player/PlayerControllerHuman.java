@@ -1880,4 +1880,12 @@ public class PlayerControllerHuman
         hand.reorder(game.getCard(card), index);
         player.updateZoneForView(hand);
     }
+	@Override
+	public boolean isLearnedAI() {
+		return false;
+	}
+	@Override
+	public void learnGameResult(boolean b) {
+		//not supposed to do anything
+	}
 }

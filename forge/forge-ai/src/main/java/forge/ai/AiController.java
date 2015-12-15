@@ -102,7 +102,7 @@ public class AiController {
     private final Game game;
     private final AiCardMemory memory;
     private boolean cheatShuffle;
-    private boolean useSimulation;
+    private boolean useSimulation = false;
     private SpellAbilityPicker simPicker;
 
     public boolean canCheatShuffle() {
@@ -114,7 +114,8 @@ public class AiController {
     }
 
     public void setUseSimulation(boolean value) {
-        this.useSimulation = value;
+    	//TODO - set this where it's suposed to be set
+        this.useSimulation = false;
     }
     
     public Game getGame() {

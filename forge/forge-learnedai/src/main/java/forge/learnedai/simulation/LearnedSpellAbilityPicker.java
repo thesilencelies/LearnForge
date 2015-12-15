@@ -39,7 +39,7 @@ public class LearnedSpellAbilityPicker {
         printOutput = false;
         if (controller == null) {
             controller = new SimulationController();
-            printOutput = true;
+          //  printOutput = true;
         }
         print("---- choose ability  (phase = " +  game.getPhaseHandler().getPhase() + ")");
 
@@ -90,7 +90,7 @@ public class LearnedSpellAbilityPicker {
             bestSa = null;
         }
 
-        print("BEST: " + abilityToString(bestSa) + " SCORE: " + bestSaValue);
+        System.out.println("BEST: " + abilityToString(bestSa) + " SCORE: " + bestSaValue.value);
         this.bestScore = bestSaValue;
         return bestSa;
     }

@@ -68,7 +68,7 @@ public class LobbyPlayerLearnedAi extends LobbyPlayer implements IGameEntitiesFa
 
         if (rotateProfileEachGame) {
             setAiProfile("Default");
-            System.out.println(String.format("AI profile %s was chosen for the lobby player %s.", getAiProfile(), getName()));
+ //           System.out.println(String.format("AI profile %s was chosen for the lobby player %s.", getAiProfile(), getName()));
         }
         return ai;
     }

@@ -57,7 +57,7 @@ public class NNevalNet {
 	    batchlen = 12;
 		//multilayer perceptron for the final decision for now
 		//base and final layers are fixed by the size of the maze and number of outputs
-		nnchoice = NNFactory.mlpSigmoid(new int []{160,160, 4},true);
+		nnchoice = NNFactory.mlpSigmoid(new int []{160, 1},true);
 		mycsprov = new NNcardStateProvider();
 		testprov = new NNSingleCardStateProvider();
 		oe = new MultipleNeuronsOutputError();

@@ -885,4 +885,14 @@ public class LearnedPlayerControllerAi extends PlayerController {
     public void cancelAwaitNextInput() {
         // Do nothing
     }
+
+	@Override
+	public boolean isLearnedAI() {
+		return true;
+	}
+
+	@Override
+	public void learnGameResult(boolean win) {
+		brains.LearnGameResult(win);
+	}
 }

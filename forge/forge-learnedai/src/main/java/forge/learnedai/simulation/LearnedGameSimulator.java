@@ -186,7 +186,8 @@ public class LearnedGameSimulator {
             debugPrint = true;
             printDiff(origLines, simLines);
         }
-        controller.printState(score, origSa);
+        if(debugPrint)
+        	controller.printState(score, origSa);
         if (controller.shouldRecurse() && !simGame.isGameOver()) {
             controller.push(sa);
             LearnedSpellAbilityPicker sim = new LearnedSpellAbilityPicker(simGame, aiPlayer, eval);

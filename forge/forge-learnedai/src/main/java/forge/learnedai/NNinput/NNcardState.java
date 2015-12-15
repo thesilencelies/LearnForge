@@ -9,7 +9,7 @@ import com.github.neuralnetworks.tensor.Matrix;
 import com.github.neuralnetworks.tensor.Tensor;
 import com.github.neuralnetworks.tensor.TensorFactory;
 
-public class NNcardState implements TrainingInputData {
+public class NNcardState implements TrainingInputData, Cloneable {
 	
 	/**
 	 * 
@@ -41,6 +41,16 @@ public NNcardState(Iterator<QCard> mycardit, Iterator<QCard> oppcardit){
 	myWeights = sumMaxWeights(mycardit);
 	oppWeights = sumMaxWeights(oppcardit);
 	target = TensorFactory.matrix(new float[][]{{0.5f}});
+}
+public NNcardState(NNcardState old){
+	super();
+	myWeights = TensorFactory.tensor(old.myWeights);
+	oppWeights = TensorFactory.tensor(old.oppWeights);
+	target = TensorFactory.tensor(old.target);
+}
+
+public NNcardState clone(){
+	return new NNcardState(this);
 }
 
 private Matrix sumMaxWeights(Iterator<QCard> it){
