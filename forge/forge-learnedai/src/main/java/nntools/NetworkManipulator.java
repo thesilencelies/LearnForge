@@ -69,9 +69,11 @@ public class NetworkManipulator {
 		
 		int nconn = connect.size();
 		int[] layersize = new int[nconn/2 +1];
+		int connectsize = 0;
 		Iterator<Connections> conit = connect.iterator(); 
 		for (int i = 0; i < nconn; i++){
 			Connections c = conit.next();
+			connectsize += ((FullyConnected)c).getWeights().getElements().length;
 			if(i%2 ==0){
 				layersize[i/2] = c.getInputUnitCount();
 			}
@@ -80,12 +82,8 @@ public class NetworkManipulator {
 			}
 		}
 		
-		
-		FileOutputStream out = null;
 		  try {
-		    out = new FileOutputStream("fc.out");
-		    FileChannel file = out.getChannel();
-		    ByteBuffer buf = file.map(FileChannel.MapMode.READ_WRITE, 0, 4 * layersize.length);
+		    ByteBuffer buf = ByteBuffer.allocate(4 * (layersize.length + connectsize + 1));
 		    //first element is the number of layers
 		    buf.putInt(layersize.length);
 		    //then there are the layers
@@ -100,38 +98,68 @@ public class NetworkManipulator {
 					buf.putFloat(i);
 				}
 			}
-			
-		    file.close();
+			Files.write(savedst, buf.array());
 		  } catch (IOException e) {
+			  e.printStackTrace();
 		    throw new RuntimeException(e);
-		  } finally {
-		    if(out != null){
-		    	try {
-					out.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-		    }
-		  }
+		  } 
 	}
+	private static class simplescanner {
+		byte[] data;
+		int it = 0;
+		public simplescanner(Path p){
+			try{
+				data = Files.readAllBytes(p);
+			}catch(IOException e){
+				e.printStackTrace();
+			}
+		}
+		//this is such a hack. if the file is remotely wrong,
+		//this will give array out of bounds exceptions all over
+		//but then the only fix is manual anyway
+		public int nextInt(){
+			int retval = 0;
+			retval += (data[it++]<<12);
+			retval += (data[it++]<<8);
+			retval += (data[it++]<<4);
+			retval += (data[it++]);
+			return retval;
+		}
+		public float nextFloat(){
+			int retval = 0;
+			retval += (data[it++]<<12);
+			retval += (data[it++]<<8);
+			retval += (data[it++]<<4);
+			retval += (data[it++]);
+			return Float.intBitsToFloat(retval);
+		}
+	}
+	
+	
 	public static NeuralNetworkImpl loadNetwork(Path savedst){
-		Scanner scanner;
-		try {
-			scanner = new Scanner(savedst);	
+		simplescanner scanner;
+			scanner = new simplescanner(savedst);	
 			int nlayers = scanner.nextInt();
 			int[] layers = new int[nlayers];
 			for(int i = 0; i < nlayers; i++){
 				layers[i] = scanner.nextInt();
 			}
 			List<float[]> connections = new ArrayList<float[]>();
-			for(int i = 0; i < nlayers; i++){
+			for(int i = 0; i < nlayers -1; i++){
 				//work out how many connections there should be
-				int nel = layers[i];
+				int nel = layers[i] * layers[i + 1];
 				float[] elements = new float[nel];
 				for(int j = 0; j < nel; j++){
 					elements[j] = scanner.nextFloat();
 				}
 				connections.add(elements);
+				//odd layers means odd connections
+				nel = layers[i+1];
+				float[] elements2 = new float[nel];
+				for(int j = 0; j < nel; j++){
+					elements2[j] = scanner.nextFloat();
+				}
+				connections.add(elements2);
 			}
 			//create the output nn - only sigmoid atm
 			NeuralNetworkImpl nnout = NNFactory.mlpSigmoid(layers, true);
@@ -139,18 +167,13 @@ public class NetworkManipulator {
 			List<Connections> newconn = nnout.getConnections();
 			Iterator<Connections> nconit= newconn.iterator();
 			Iterator<float[]>conit = connections.iterator();
+			int i = 0;
 			while(conit.hasNext()){
+				TensorFactory.copy(TensorFactory.matrix(conit.next(),layers[i]),((FullyConnected)(nconit.next())).getWeights());
+				i++;
 				TensorFactory.copy(TensorFactory.matrix(conit.next(),1),((FullyConnected)(nconit.next())).getWeights());
 			}
 			
 			return nnout;
-			
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		return null;
 	}
 }
