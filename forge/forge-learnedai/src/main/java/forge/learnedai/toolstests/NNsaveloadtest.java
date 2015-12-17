@@ -22,7 +22,7 @@ import nntools.NetworkManipulator;
 
 public class NNsaveloadtest {
 	public static void main(String [] args){
-		NeuralNetworkImpl mlp = NNFactory.mlpSigmoid(new int[] { 4,3,2,1}, true);
+		NeuralNetworkImpl mlp = NNFactory.mlpSigmoid(new int[] { 2,2,1}, true);
 
 //      [-5.744886, -5.7570715, -7.329507, -7.33055] - l1-l2
 //      [8.59142, 3.1430812] - bias l2

@@ -117,21 +117,21 @@ public class NetworkManipulator {
 		//this is such a hack. if the file is remotely wrong,
 		//this will give array out of bounds exceptions all over
 		//but then the only fix is manual anyway
-		public int nextInt(){
-			int retval = 0;
-			retval += (data[it++]<<12);
-			retval += (data[it++]<<8);
-			retval += (data[it++]<<4);
-			retval += (data[it++]);
-			return retval;
-		}
 		public float nextFloat(){
 			int retval = 0;
-			retval += (data[it++]<<12);
-			retval += (data[it++]<<8);
-			retval += (data[it++]<<4);
-			retval += (data[it++]);
+			retval = retval | (data[it++] & 0xff) << 24;
+			retval = retval | (data[it++] & 0xff) << 16;
+			retval = retval | (data[it++] & 0xff) << 8;
+			retval = retval | (data[it++] & 0xff) << 0;
 			return Float.intBitsToFloat(retval);
+		}
+		public int nextInt(){
+			int retval = 0;
+			retval = retval |(data[it++] & 0xff) << 24;
+			retval = retval | (data[it++] & 0xff) << 16;
+			retval = retval | (data[it++] & 0xff) << 8;
+			retval = retval | (data[it++] & 0xff) << 0;
+			return retval;
 		}
 	}
 	
