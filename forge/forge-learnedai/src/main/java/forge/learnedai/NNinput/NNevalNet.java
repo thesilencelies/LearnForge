@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Iterator;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -48,7 +49,35 @@ public class NNevalNet {
 	private int maxexplen, batchlen;
 	
 	public NNevalNet(){
-		this(0.99,0.6);
+		this(Paths.get("/home/stephen/Documents/MagicNN.nn"));
+	}
+	public NNevalNet(Path p){
+		this(p, 0.99,0.6);
+	}
+	public NNevalNet(Path p, double _gamma, double _alpha){
+		gamma = _gamma;
+		alpha = _alpha;
+		maxexplen = 1000;
+	    batchlen = 12;
+		//multilayer perceptron for the final decision for now
+		//base and final layers are fixed by the size of the maze and number of outputs
+		mycsprov = new NNcardStateProvider();
+		testprov = new NNSingleCardStateProvider();
+		oe = new MultipleNeuronsOutputError();
+		try{
+			load(p);
+		}catch(IOException e){
+			//if we can't load, we default initialise
+			nnchoice = NNFactory.mlpSigmoid(new int []{160, 1},true);
+			bpt = TrainerFactory.backPropagation(nnchoice, mycsprov, testprov, oe, new NNRandomInitializer(new MersenneTwisterRandomInitializer(0,0.1f)),0.1f, 0.3f, 0f, 0f, 0, batchlen, batchlen, 20);
+		}
+		results = TensorFactory.tensorProvider(nnchoice,1, Environment.getInstance().getUseDataSharedMemory());
+		calculatedLayers  = new UniqueList<Layer>();
+		//connect the input to the neural network
+		input = new TrainingInputDataImpl(results.get(nnchoice.getInputLayer()), results.get(oe));
+		expreplay = new ArrayList<CardStateExp>();
+	    replaybatch = new ArrayList<CardStateExp>();
+		storeMem();
 	}
 	public NNevalNet (double _gamma, double _alpha){
 		gamma = _gamma;
@@ -93,11 +122,16 @@ public class NNevalNet {
 	}
 	public void load(Path nnp) throws IOException{
 		//functions to load the neural net itself as well
-		//TODO
+		nnchoice = nntools.NetworkManipulator.loadNetwork(nnp);
+		//don't want to randomly initialise it
+		bpt =  TrainerFactory.backPropagation(nnchoice, mycsprov, testprov, oe, null, 0.1f, 0f, 0.1f, 0f, 0, batchlen, batchlen, 20);
+	}
+	public void save(){
+		save(Paths.get("/home/stephen/Documents/MagicNN.nn"));
 	}
 	public void save(Path nnp){
 		//functions to save the neural net itself as well
-		//TODO
+		nntools.NetworkManipulator.saveNetwork(nnchoice, nnp);
 	}
 	
 	public void ObserveAndTrain(NNcardState start, NNcardState end, double reward){

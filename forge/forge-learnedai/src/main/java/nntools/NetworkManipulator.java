@@ -107,11 +107,11 @@ public class NetworkManipulator {
 	private static class simplescanner {
 		byte[] data;
 		int it = 0;
-		public simplescanner(Path p){
+		public simplescanner(Path p) throws IOException{
 			try{
 				data = Files.readAllBytes(p);
 			}catch(IOException e){
-				e.printStackTrace();
+				throw e;
 			}
 		}
 		//this is such a hack. if the file is remotely wrong,
@@ -136,7 +136,7 @@ public class NetworkManipulator {
 	}
 	
 	
-	public static NeuralNetworkImpl loadNetwork(Path savedst){
+	public static NeuralNetworkImpl loadNetwork(Path savedst) throws IOException{
 		simplescanner scanner;
 			scanner = new simplescanner(savedst);	
 			int nlayers = scanner.nextInt();

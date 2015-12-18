@@ -1,5 +1,6 @@
 package forge.learnedai.toolstests;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Set;
@@ -50,8 +51,9 @@ public class NNsaveloadtest {
 	Path spath = Paths.get("/home/stephen/Documents/testnn.nn");
 	NetworkManipulator.saveNetwork(mlp, spath);
 	
+	try{
 	NeuralNetworkImpl nn2 = NetworkManipulator.loadNetwork(spath);
-	
+
 	b1 = (FullyConnected) fc1.getOutputLayer().getConnections().get(1);
 	b1.getWeights().set(1f,new int[]{ 0, 0});
 	b1.getWeights().set(1,new int[]{ 1, 0});
@@ -75,6 +77,9 @@ public class NNsaveloadtest {
 			System.out.printf(" %1.4f ", el[j]);
 		}
 		System.out.printf("%n");
+	}
+	}catch(IOException e){
+		e.printStackTrace();
 	}
 	}
 	

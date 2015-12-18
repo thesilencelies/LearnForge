@@ -91,6 +91,8 @@ public class SimulateMatch {
         }
         
         //save the learned Ai State
+        FModel.nn.save();
+        
         System.out.flush();
     }
     
