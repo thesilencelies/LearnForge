@@ -248,6 +248,15 @@ public class Player extends GameEntity implements Comparable<Player> {
         }
         throw new IllegalStateException("No opponents left ingame for " + this);
     }
+    
+    public final Player getOtherPlayer(){
+    	for (Player p : game.getRegisteredPlayers()){
+    		if(p.isOpponentOf(this)){
+    			return p;
+    		}
+    	}
+    	throw new IllegalStateException("No opponents for " + this + "registered");
+    }
 
     /**
      * returns all opponents.

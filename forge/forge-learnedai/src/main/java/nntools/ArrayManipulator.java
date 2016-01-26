@@ -23,6 +23,20 @@ public class ArrayManipulator {
 	    }
 	    return target;
 	}
+	public static boolean MatEquals(Matrix m1, Matrix m2){
+		TensorIterator it1 = m1.iterator();
+		TensorIterator it2 = m2.iterator();
+		while(it1.hasNext()){
+			if(!it2.hasNext()){
+				return false;
+			}
+			if((it1.next() != it2.next())){
+				return false;
+			}
+		}
+		if(it2.hasNext()) return false;
+		else return true;
+	}
 	
 	//sums the two input matrixes into the first
 	public static void SumMatrixInPlace(Matrix srcdst, Matrix addval){

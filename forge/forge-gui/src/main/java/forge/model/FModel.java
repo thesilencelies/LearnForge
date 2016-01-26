@@ -87,11 +87,9 @@ public final class FModel {
     private static IStorage<QuestWorld> worlds;
     private static GameFormat.Collection formats;
     
-    public static NNevalNet nn;
+    //public static NNevalNet nn; this is bad. maybe store loading info here instead later
 
     public static void initialize(final IProgressBar progressBar) {
-        //TODO: make this do proper loading or have model parameters from command line
-        nn = new NNevalNet();
         
         ImageKeys.initializeDirs(
                 ForgeConstants.CACHE_CARD_PICS_DIR, ForgeConstants.CACHE_CARD_PICS_SUBDIR,

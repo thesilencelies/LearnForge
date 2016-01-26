@@ -23,10 +23,10 @@ import java.io.IOException;
 //probably deprecated until we condsider deckbuiling...
 public class QGameState {
 	
-    protected static int getEffectivePower(final Card c) {
+    protected static int getEffectivePower( Card c) {
         return c.getNetCombatDamage();
     }
-    protected static int getEffectiveToughness(final Card c) {
+    protected static int getEffectiveToughness( Card c) {
         return c.getNetToughness();
     }
     
@@ -34,7 +34,12 @@ public class QGameState {
 	//this should also look at the stack
 	
 	public static NNcardState ProduceGamestate(Player me){
-		Player opp = me.getOpponent();
+		Player opp;
+		try{
+		opp = me.getOpponent();
+		}catch (IllegalStateException e){
+			opp = me.getOtherPlayer();
+		}
 		//put in the evaluation of the creatures
 		Vector<QCard> mycards = new Vector<QCard>();
 		CardCollectionView mystuff = me.getCardsIn(ZoneType.Battlefield);
@@ -42,7 +47,7 @@ public class QGameState {
 		while (it.hasNext()){
 			Card c = it.next();
 			if(c.isCreature()){
-				mycards.addElement(new myQCard(c,assessCreature(c)));
+				mycards.addElement(new metaQCard(assessCreature(c)));
 			}
 		}
 		//evaluate what's left in hand (should be useful to encourage preserving valuable resources
@@ -50,7 +55,7 @@ public class QGameState {
 		it = mystuff.iterator();
 		while (it.hasNext()){
 			Card c = it.next();
-			mycards.addElement(new myQCard(c,assessHandCard(c)));
+			mycards.addElement(new metaQCard(assessHandCard(c)));
 		}
 		
 		//put in the game state variables
@@ -66,7 +71,7 @@ public class QGameState {
 		while (it.hasNext()){
 			Card c = it.next();
 			if(c.isCreature()){
-				oppcards.addElement(new myQCard(c,assessCreature(c)));
+				oppcards.addElement(new metaQCard(assessCreature(c)));
 			}
 		}
 		
@@ -77,8 +82,8 @@ public class QGameState {
 		statevals[0][19] = opp.getCardsIn(ZoneType.Hand).size();
 		oppcards.addElement(new metaQCard(TensorFactory.matrix(statevals)));
 		
-		//ideally I'd run the features throught a conv net that would produce the featureset directly, but I'm not sure how to train that atm
-		return new NNcardState(mycards,oppcards);
+		//ideally I'd run the features through a conv net that would produce the featureset directly, but I'm not sure how to train that atm
+		return new NNcardState(mycards.iterator(),oppcards.iterator());
 	}
 
 	private static Matrix assessHandCard(final Card c){
@@ -95,12 +100,12 @@ public class QGameState {
 
 	
 	//not currently used, but maybe later - for now we'll look ahead to stack resolution to understand our opponent's spells (and indeed the consequence of our own)
-	private static Matrix assessSpell(final Card c){
+	private static Matrix assessSpell( Card c){
 		return null;
 	}
 	
 	//possibly a useful featureset for creature assessment...
-	private static Matrix assessCreature(final Card c){
+	private static Matrix assessCreature(Card c){
 		float[][] weights = new float[1][20];
         int power = getEffectivePower(c);
         final int toughness = getEffectiveToughness(c);

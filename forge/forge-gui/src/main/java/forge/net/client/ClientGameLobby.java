@@ -7,8 +7,8 @@ import forge.match.GameLobby;
 public final class ClientGameLobby extends GameLobby {
     private int localPlayer = -1;
 
-    public ClientGameLobby(NNevalNet nn) {
-        super(true, nn);
+    public ClientGameLobby() {
+        super(true);
     }
 
     public void setLocalPlayer(final int index) {

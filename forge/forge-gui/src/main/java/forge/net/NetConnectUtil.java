@@ -42,7 +42,7 @@ public class NetConnectUtil {
     public static ChatMessage host(final IOnlineLobby onlineLobby, final IOnlineChatInterface chatInterface) {
         final int port = ForgeProfileProperties.getServerPort();
         final FServerManager server = FServerManager.getInstance();
-        final ServerGameLobby lobby = new ServerGameLobby(FModel.nn);
+        final ServerGameLobby lobby = new ServerGameLobby();
         final ILobbyView view = onlineLobby.setLobby(lobby);
 
         server.startServer(port);
@@ -110,7 +110,7 @@ public class NetConnectUtil {
         final FGameClient client = new FGameClient(FModel.getPreferences().getPref(FPref.PLAYER_NAME), "0", gui);
         onlineLobby.setClient(client);
         chatInterface.setGameClient(client);
-        final ClientGameLobby lobby = new ClientGameLobby(FModel.nn);
+        final ClientGameLobby lobby = new ClientGameLobby();
         final ILobbyView view =  onlineLobby.setLobby(lobby);
         lobby.setListener(view);
         client.addLobbyListener(new ILobbyListener() {

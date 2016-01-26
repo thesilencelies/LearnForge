@@ -73,9 +73,9 @@ public class LearnedSpellAbilityPicker {
         Score origGameScore = simulator.getScoreForOrigGame();
         Score bestSaValue = origGameScore;
         for (final SpellAbility sa : candidateSAs) {
-            print(abilityToString(sa));;
+            print(abilityToString(sa));
             Score value = evaluateSa(controller, sa);
-            if (value.value > bestSaValue.value) {
+            if (value.value >= bestSaValue.value) {	//greater than or equal to so that it prefers doing something to doing nothing.
                 bestSaValue = value;
                 bestSa = sa;
             }
@@ -86,11 +86,11 @@ public class LearnedSpellAbilityPicker {
         // Do it here on the best SA, rather than for all evaluations, so that if the best SA
         // is indeed a creature spell, we don't pick something else to play now and then have
         // no mana to play the truly best SA post-combat.
-        if (bestSa != null && bestSaValue.summonSickValue <= origGameScore.summonSickValue) {
-            bestSa = null;
-        }
+       // if (bestSa != null && bestSaValue.summonSickValue <= origGameScore.summonSickValue) {
+         //   bestSa = null;
+        //}
 
-        System.out.println("BEST: " + abilityToString(bestSa) + " SCORE: " + bestSaValue.value);
+        print("BEST: " + abilityToString(bestSa) + " SCORE: " + bestSaValue.value);
         this.bestScore = bestSaValue;
         return bestSa;
     }

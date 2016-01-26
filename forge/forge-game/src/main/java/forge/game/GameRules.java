@@ -7,8 +7,9 @@ public class GameRules {
     private final GameType gameType;
     private boolean manaBurn;
     private int poisonCountersToLose = 10; // is commonly 10, but turns into 15 for 2HG
-    private int gamesPerMatch = 3;
-    private int gamesToWinMatch = 2;
+    //TODO: set this back to 3
+    private int gamesPerMatch = 100;
+    private int gamesToWinMatch = 51;
     private boolean playForAnte = false;
     private boolean matchAnteRarity = false;
     private final Set<GameType> appliedVariants = EnumSet.noneOf(GameType.class);

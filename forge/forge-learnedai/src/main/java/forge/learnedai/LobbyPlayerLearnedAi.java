@@ -18,12 +18,12 @@ public class LobbyPlayerLearnedAi extends LobbyPlayer implements IGameEntitiesFa
     private boolean useSimulation;
     private NNevalNet nn;
 
-    public LobbyPlayerLearnedAi(String name, Set<AIOption> options, NNevalNet _nn) {
+    public LobbyPlayerLearnedAi(String name, Set<AIOption> options) {
         super(name);
         if (options != null && options.contains(AIOption.USE_SIMULATION)) {
             this.useSimulation = true;
         }
-        nn = _nn;
+        nn = new NNevalNet();	//uses the default loading - may be changed later
     }
     public NNevalNet getNN(){
     	return nn;

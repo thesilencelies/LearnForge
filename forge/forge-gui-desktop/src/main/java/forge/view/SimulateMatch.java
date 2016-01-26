@@ -49,14 +49,19 @@ public class SimulateMatch {
         pp.add(new RegisteredPlayer(d2).setPlayer(GamePlayerUtil.createAiPlayer("Ai_" + d2.getName(), 1)));
         GameRules rules = new GameRules(GameType.Constructed);
         Match mc = new Match(rules, pp, "Test");
+        int p1wins = 0;
         for (int iGame = 0; iGame < nGames; iGame++) {
-            simulateSingleMatch(mc, iGame);
+            p1wins += simulateSingleMatch(mc, iGame);
+
+            System.out.println(String.format("current score is %s : %d , %s : %d \n", d1.getName() ,p1wins,d2.getName(), (iGame +1 - p1wins) ));
+            if(iGame%10 == 9){
+            	mc = new Match(rules, pp, "Test");
+            }
         }
         System.out.flush();
     }
     
-    //TODO: Setup a list of decks so that the AI can be trained on a gauntlet of opponents
-    public static void simulatelearn(String[] args, NNevalNet nn) {
+    public static void simulatelearn(String[] args) {
         FModel.initialize(null);
 
         System.out.println("Training Ai on sims");
@@ -81,17 +86,27 @@ public class SimulateMatch {
         System.out.println(String.format("Ai-%s vs Ai_%s - %s", d1.getName(), d2.getName(), Lang.nounWithNumeral(nGames, "game")));
         
         //load the learned ai state
+        
         List<RegisteredPlayer> pp = new ArrayList<RegisteredPlayer>();
-        pp.add(new RegisteredPlayer(d1).setPlayer(GamePlayerUtil.createLearnedAiPlayer("Ai-" + d1.getName(), 0, nn)));
+        pp.add(new RegisteredPlayer(d1).setPlayer(GamePlayerUtil.createLearnedAiPlayer("Ai-" + d1.getName(), 0)));
         pp.add(new RegisteredPlayer(d2).setPlayer(GamePlayerUtil.createAiPlayer("Ai_" + d2.getName(), 1)));
         GameRules rules = new GameRules(GameType.Constructed);
         Match mc = new Match(rules, pp, "Test");
+        int p1wins = 0;
         for (int iGame = 0; iGame < nGames; iGame++) {
-            simulateSingleMatch(mc, iGame);
+            p1wins += simulateSingleMatch(mc, iGame);
+            System.out.println(String.format("current score is %s : %d , %s : %d \n", d1.getName() ,p1wins,d2.getName(), (iGame +1 - p1wins) ));
+            if(iGame%10 == 9){
+            	mc = null;
+            	pp = null;
+            	pp = new ArrayList<RegisteredPlayer>();
+                pp.add(new RegisteredPlayer(d1).setPlayer(GamePlayerUtil.createLearnedAiPlayer("Ai-" + d1.getName(), 0)));
+                pp.add(new RegisteredPlayer(d2).setPlayer(GamePlayerUtil.createAiPlayer("Ai_" + d2.getName(), 1)));
+                mc = new Match(rules, pp, "Test");
+            }
+
+            
         }
-        
-        //save the learned Ai State
-        FModel.nn.save();
         
         System.out.flush();
     }
@@ -101,7 +116,7 @@ public class SimulateMatch {
      * @param sw
      * @param pp
      */
-    private static void simulateSingleMatch(Match mc, int iGame) {
+    private static int simulateSingleMatch(Match mc, int iGame) {
         StopWatch sw = new StopWatch();
         sw.start();
 
@@ -117,6 +132,14 @@ public class SimulateMatch {
             System.out.println(l);
 
         System.out.println(String.format("\nGame %d ended in %d ms. %s has won!\n", 1+iGame, sw.getTime(), g1.getOutcome().getWinningLobbyPlayer().getName()));
+        
+        if(g1.getOutcome().getWinningPlayer().getName() == mc.getPlayers().get(0).getPlayer().getName()){
+        	return 1;
+        }
+        else return 0;
+        //g1 = null;
+        //this is poor form, but possibly necesarry
+       // System.gc();
     }
 
 

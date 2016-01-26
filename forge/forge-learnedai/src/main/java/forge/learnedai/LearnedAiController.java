@@ -124,6 +124,8 @@ public class LearnedAiController {
     	currentstate = QGameState.ProduceGamestate(player);
     	int reward = win? 1 : -1;
     	nn.ObserveAndTrain(prevstate, currentstate, reward);
+    	nn.storeMem();
+    	nn.save();
     }
 
     public void allowCheatShuffle(boolean canCheatShuffle) {

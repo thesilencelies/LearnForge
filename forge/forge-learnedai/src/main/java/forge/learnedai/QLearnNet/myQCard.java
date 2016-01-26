@@ -6,7 +6,8 @@ import com.github.neuralnetworks.tensor.TensorFactory;
 import forge.game.card.Card;
 
 public class myQCard implements QCard {
-	
+	//the cid here is probably inefficient
+	//so I'll use a metaQCard instead where I don't need the cid
 	public Card cardid;
 	public myQCard(Card cid, int nneuron){
 		cardid = cid;

@@ -70,7 +70,7 @@ public final class Main {
                 break;
                 
             case "simai":
-                SimulateMatch.simulatelearn(args, nn);
+                SimulateMatch.simulatelearn(args);
                 break;
 
             case "parse":

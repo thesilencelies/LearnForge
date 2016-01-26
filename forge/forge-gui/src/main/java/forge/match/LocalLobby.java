@@ -10,8 +10,8 @@ import forge.learnedai.NNinput.NNevalNet;
 public final class LocalLobby extends GameLobby {
 
     private IGuiGame gui = null;
-    public LocalLobby(NNevalNet nn) {
-        super(false, nn);
+    public LocalLobby() {
+        super(false);
 
         final String humanName = localName();
         final int[] avatarIndices = localAvatarIndices();

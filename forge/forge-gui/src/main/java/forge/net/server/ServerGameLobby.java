@@ -13,8 +13,8 @@ import forge.match.LobbySlotType;
 
 public final class ServerGameLobby extends GameLobby {
 
-    public ServerGameLobby(NNevalNet nn) {
-        super(true, nn);
+    public ServerGameLobby() {
+        super(true);
         addSlot(new LobbySlot(LobbySlotType.LOCAL, localName(), localAvatarIndices()[0], 0, true, false, Collections.<AIOption>emptySet()));
         addSlot(new LobbySlot(LobbySlotType.OPEN, null, -1, 1, false, false, Collections.<AIOption>emptySet()));
     }

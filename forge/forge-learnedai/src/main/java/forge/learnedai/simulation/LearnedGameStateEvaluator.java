@@ -46,6 +46,7 @@ public class LearnedGameStateEvaluator {
     }
 
     public Score getScoreForGameState(Game game, Player aiPlayer) {
+    	//obiously win if you can 
         if (game.isGameOver()) {
             return game.getOutcome().getWinningPlayer() == aiPlayer ? new Score(Integer.MAX_VALUE) : new Score(Integer.MIN_VALUE);
         }

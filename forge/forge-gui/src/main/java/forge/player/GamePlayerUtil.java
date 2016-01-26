@@ -72,15 +72,15 @@ public final class GamePlayerUtil {
     }
     public final static LobbyPlayer createLearnedAiPlayer(final String name, NNevalNet nn) {
         final int avatarCount = GuiBase.getInterface().getAvatarCount();
-        return createLearnedAiPlayer(name, avatarCount == 0 ? 0 : MyRandom.getRandom().nextInt(avatarCount), nn);
+        return createLearnedAiPlayer(name, avatarCount == 0 ? 0 : MyRandom.getRandom().nextInt(avatarCount));
     }
-    public final static LobbyPlayer createLearnedAiPlayer(final String name, final int avatarIndex, NNevalNet nn) {
-        return createLearnedAiPlayer(name, avatarIndex, null, nn);
+    public final static LobbyPlayer createLearnedAiPlayer(final String name, final int avatarIndex) {
+        return createLearnedAiPlayer(name, avatarIndex, null);
     }
     
     //this one needs the particular work
-    public final static LobbyPlayer createLearnedAiPlayer(final String name, final int avatarIndex, final Set<AIOption> options, NNevalNet nn) {
-        final LobbyPlayerLearnedAi player = new LobbyPlayerLearnedAi(name, options,nn);
+    public final static LobbyPlayer createLearnedAiPlayer(final String name, final int avatarIndex, final Set<AIOption> options) {
+        final LobbyPlayerLearnedAi player = new LobbyPlayerLearnedAi(name, options);
 
         String lastProfileChosen = FModel.getPreferences().getPref(FPref.UI_CURRENT_AI_PROFILE);
         player.setRotateProfileEachGame(lastProfileChosen.equals(AiProfileUtil.AI_PROFILE_RANDOM_DUEL));

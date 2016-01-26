@@ -33,7 +33,7 @@ public enum VSubmenuConstructed implements IVSubmenu<CSubmenuConstructed> {
     private DragCell parentCell;
     private final DragTab tab = new DragTab("Constructed Mode");
 
-    private final GameLobby lobby = new LocalLobby(FModel.nn);
+    private final GameLobby lobby = new LocalLobby();
     private final VLobby vLobby = new VLobby(lobby);
     private VSubmenuConstructed() {
         lobby.setListener(vLobby);

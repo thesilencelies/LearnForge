@@ -19,21 +19,6 @@ public class NNcardState implements TrainingInputData, Cloneable {
 	private Matrix oppWeights;
 	private Tensor target;
 
-public NNcardState(Vector<QCard> mycards, Vector<QCard> oppcards){
-	super();
-	//process the cards and produce the matrix
-	//currently the state is just the sum then the max
-
-	if (mycards.size() > 0){
-		Iterator<QCard> it = mycards.iterator();
-		myWeights = sumMaxWeights(it);
-	}
-	if (oppcards.size() > 0){
-		Iterator<QCard> it = oppcards.iterator();
-		oppWeights = sumMaxWeights(it);
-	}
-	target = TensorFactory.matrix(new float[][]{{0.5f}});
-}
 public NNcardState(Iterator<QCard> mycardit, Iterator<QCard> oppcardit){
 	super();
 	//process the cards and produce the matrix
@@ -54,6 +39,7 @@ public NNcardState clone(){
 }
 
 private Matrix sumMaxWeights(Iterator<QCard> it){
+	//TODO - make this able to work on any size matrix
 	Matrix cweights = it.next().getweights();
 	Matrix summedWeights = TensorFactory.matrix(new float[1][20]);
 	Matrix maxWeights = TensorFactory.matrix(new float[1][20]);
@@ -80,6 +66,19 @@ public Tensor getInput() {
 
 public void setTarget(Matrix target) {
     this.target = target;
+}
+public boolean equals(Object obj){
+	if (obj instanceof NNcardState) {
+		NNcardState s = (NNcardState)obj;
+        	if(ArrayManipulator.MatEquals(s.myWeights,myWeights)){
+        		if(ArrayManipulator.MatEquals(s.oppWeights, oppWeights)){
+        			return true;
+        		}
+        	}
+        return false;
+
+    }
+    return super.equals(obj);
 }
 
 }
