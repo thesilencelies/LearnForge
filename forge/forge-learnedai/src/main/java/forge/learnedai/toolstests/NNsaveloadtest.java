@@ -10,6 +10,7 @@ import com.github.neuralnetworks.architecture.Layer;
 import com.github.neuralnetworks.architecture.NeuralNetworkImpl;
 import com.github.neuralnetworks.architecture.types.NNFactory;
 import com.github.neuralnetworks.calculation.memory.ValuesProvider;
+import com.github.neuralnetworks.calculation.neuronfunctions.ConnectionCalculatorFullyConnected;
 import com.github.neuralnetworks.input.MultipleNeuronsOutputError;
 import com.github.neuralnetworks.input.SimpleInputProvider;
 import com.github.neuralnetworks.tensor.Matrix;
@@ -23,7 +24,7 @@ import nntools.NetworkManipulator;
 
 public class NNsaveloadtest {
 	public static void main(String [] args){
-		NeuralNetworkImpl mlp = NNFactory.mlpSigmoid(new int[] { 2,2,1}, true);
+		NeuralNetworkImpl mlp = NNFactory.mlpRelu(new int[] { 2,2,1}, true, new ConnectionCalculatorFullyConnected());
 
 //      [-5.744886, -5.7570715, -7.329507, -7.33055] - l1-l2
 //      [8.59142, 3.1430812] - bias l2
@@ -52,7 +53,7 @@ public class NNsaveloadtest {
 	NetworkManipulator.saveNetwork(mlp, spath);
 	
 	try{
-	NeuralNetworkImpl nn2 = NetworkManipulator.loadNetwork(spath);
+	NeuralNetworkImpl nn2 = NetworkManipulator.loadNetwork(spath, true);
 
 	b1 = (FullyConnected) fc1.getOutputLayer().getConnections().get(1);
 	b1.getWeights().set(1f,new int[]{ 0, 0});

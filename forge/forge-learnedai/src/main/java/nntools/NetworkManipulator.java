@@ -20,6 +20,7 @@ import com.github.neuralnetworks.architecture.Layer;
 import com.github.neuralnetworks.architecture.NeuralNetwork;
 import com.github.neuralnetworks.architecture.NeuralNetworkImpl;
 import com.github.neuralnetworks.architecture.types.NNFactory;
+import com.github.neuralnetworks.calculation.neuronfunctions.ConnectionCalculatorFullyConnected;
 import com.github.neuralnetworks.tensor.Matrix;
 import com.github.neuralnetworks.tensor.TensorFactory;
 
@@ -51,6 +52,43 @@ public class NetworkManipulator {
 		//create the new network (assume they have bias for now...)
 		//also gonna assume they're a sigmoid
 		NeuralNetworkImpl nnout = NNFactory.mlpSigmoid(layersize, bias);
+		//for each layer produce a copy of it
+		List<Connections> newconn = nnout.getConnections();
+		Iterator<Connections> nconit= newconn.iterator();
+		conit = connect.iterator();
+		while(conit.hasNext()){
+			TensorFactory.copy(((FullyConnected) conit.next()).getWeights(),((FullyConnected)(nconit.next())).getWeights());
+		}
+		
+		return nnout;
+	}
+	public static NeuralNetworkImpl CopyRELUNN(NeuralNetworkImpl nn){
+		//get the size parameters of the original network
+		//Set<Layer> layers = nn.getLayers();
+		//Class<? extends NeuralNetwork> cls = nn.getClass();
+		List<Connections> connect = nn.getConnections();
+		boolean bias = true;
+		
+		int nconn = connect.size();
+		int[] layersize = new int[nconn/2 +1];
+		//int[] coninsize = new int[nconn];
+		//int[] conoutsize = new int[nconn];
+		Iterator<Connections> conit = connect.iterator(); 
+		for (int i = 0; i < nconn; i++){
+			Connections c = conit.next();
+			//coninsize[i] = c.getInputUnitCount();
+			//conoutsize[i] = c.getOutputUnitCount();
+			if(i%2 ==0){
+				layersize[i/2] = c.getInputUnitCount();
+			}
+			if(i == nconn -1){
+				layersize[nconn/2] = c.getOutputUnitCount();
+			}
+			//conoutsize[i] = c.getOutputUnitCount();
+		}
+		//create the new network (assume they have bias for now...)
+		//also gonna assume they're a sigmoid
+		NeuralNetworkImpl nnout = NNFactory.mlpRelu(layersize, bias, new ConnectionCalculatorFullyConnected());
 		//for each layer produce a copy of it
 		List<Connections> newconn = nnout.getConnections();
 		Iterator<Connections> nconit= newconn.iterator();
@@ -136,7 +174,7 @@ public class NetworkManipulator {
 	}
 	
 	
-	public static NeuralNetworkImpl loadNetwork(Path savedst) throws IOException{
+	public static NeuralNetworkImpl loadNetwork(Path savedst, boolean RELU) throws IOException{
 		simplescanner scanner;
 			scanner = new simplescanner(savedst);	
 			int nlayers = scanner.nextInt();
@@ -161,8 +199,15 @@ public class NetworkManipulator {
 				}
 				connections.add(elements2);
 			}
-			//create the output nn - only sigmoid atm
-			NeuralNetworkImpl nnout = NNFactory.mlpSigmoid(layers, true);
+			//create the output nn
+			NeuralNetworkImpl nnout;
+			if(RELU){
+				nnout = NNFactory.mlpRelu(layers, true, new ConnectionCalculatorFullyConnected());
+			}
+			else{
+				nnout = NNFactory.mlpSigmoid(layers, true);
+			}
+
 			//for each layer produce a copy of it
 			List<Connections> newconn = nnout.getConnections();
 			Iterator<Connections> nconit= newconn.iterator();

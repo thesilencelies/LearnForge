@@ -52,7 +52,6 @@ public class SimulateMatch {
         int p1wins = 0;
         for (int iGame = 0; iGame < nGames; iGame++) {
             p1wins += simulateSingleMatch(mc, iGame);
-
             System.out.println(String.format("current score is %s : %d , %s : %d \n", d1.getName() ,p1wins,d2.getName(), (iGame +1 - p1wins) ));
             if(iGame%10 == 9){
             	mc = new Match(rules, pp, "Test");
@@ -95,8 +94,8 @@ public class SimulateMatch {
         int p1wins = 0;
         for (int iGame = 0; iGame < nGames; iGame++) {
             p1wins += simulateSingleMatch(mc, iGame);
-            System.out.println(String.format("current score is %s : %d , %s : %d \n", d1.getName() ,p1wins,d2.getName(), (iGame +1 - p1wins) ));
-            if(iGame%10 == 9){
+            System.out.println(String.format("current score is LearnedAI : %d , RulesAI : %d \n",p1wins, (iGame +1 - p1wins) ));
+            if(iGame%6 == 5){
             	mc = null;
             	pp = null;
             	pp = new ArrayList<RegisteredPlayer>();

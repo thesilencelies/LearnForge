@@ -15,6 +15,7 @@ import com.github.neuralnetworks.training.TrainerFactory;
 import com.github.neuralnetworks.training.TrainingInputData;
 import com.github.neuralnetworks.training.TrainingInputDataImpl;
 import com.github.neuralnetworks.calculation.memory.ValuesProvider;
+import com.github.neuralnetworks.calculation.neuronfunctions.ConnectionCalculatorFullyConnected;
 import com.github.neuralnetworks.input.MultipleNeuronsOutputError;
 import com.github.neuralnetworks.util.Environment;
 import com.github.neuralnetworks.util.Properties;
@@ -68,8 +69,10 @@ public class NNevalNet {
 			load(p);
 		}catch(IOException e){
 			//if we can't load, we default initialise
-			nnchoice = NNFactory.mlpSigmoid(new int []{160, 1},true);
-			bpt = TrainerFactory.backPropagation(nnchoice, mycsprov, testprov, oe, new NNRandomInitializer(new MersenneTwisterRandomInitializer(-0.1f,0.1f)),0.1f, 0.3f, 0f, 0f, 0, batchlen, batchlen, 12);
+			nnchoice = NNFactory.mlpRelu(new int []{160,200,200,1},true, new ConnectionCalculatorFullyConnected());
+			bpt = TrainerFactory.backPropagation(nnchoice, mycsprov, testprov, oe, new NNRandomInitializer(new MersenneTwisterRandomInitializer(-0.1f,0.1f)),0.001f, 0.6f, 0f, 0f, 0, batchlen, batchlen, 12);
+			bpt.train();
+			bpt = TrainerFactory.backPropagation(nnchoice, mycsprov, testprov, oe,null,0.001f, 0.6f, 0f, 0f, 0, batchlen, batchlen, 12);
 		}
 		results = TensorFactory.tensorProvider(nnchoice,1, Environment.getInstance().getUseDataSharedMemory());
 		calculatedLayers  = new UniqueList<Layer>();
@@ -80,7 +83,7 @@ public class NNevalNet {
 		storeMem();
 	}
 	public NNevalNet (double _gamma, double _alpha){
-		this(new int[] {160,1}, _gamma, _alpha);
+		this(new int[] {160,200,200,1}, _gamma, _alpha);
 	}
 	public NNevalNet (int[] layers, double _gamma, double _alpha){
 		gamma = _gamma;
@@ -90,13 +93,16 @@ public class NNevalNet {
 
 		//multilayer perceptron for the final decision for now
 		//base and final layers are fixed by the size of the maze and number of outputs
-		nnchoice = NNFactory.mlpSigmoid(layers,true);
+		nnchoice = NNFactory.mlpRelu(layers,true,new ConnectionCalculatorFullyConnected());
 		mycsprov =  new NNcardStateProvider();
 		testprov = new NNSingleCardStateProvider();
 		oe = new MultipleNeuronsOutputError();
 		results = TensorFactory.tensorProvider(nnchoice,1, Environment.getInstance().getUseDataSharedMemory());
 		calculatedLayers  = new UniqueList<Layer>();				//float learningRate, float momentum, float l1weightDecay, float l2weightDecay, float dropoutRate, int trainingBatchSize, int testBatchSize, int epochs
-		bpt = TrainerFactory.backPropagation(nnchoice, mycsprov, testprov, oe, new NNRandomInitializer(new MersenneTwisterRandomInitializer(-0.1f,0.1f)), 0.1f, 0f, 0.1f, 0f, 0, batchlen, batchlen, 20);
+		bpt = TrainerFactory.backPropagation(nnchoice, mycsprov, testprov, oe, new NNRandomInitializer(new MersenneTwisterRandomInitializer(-0.1f,0.1f)), 0.001f, 0f, 0.8f, 0f, 0, batchlen, batchlen,12);
+		bpt.train();
+		bpt = TrainerFactory.backPropagation(nnchoice, mycsprov, testprov, oe, null, 0.001f, 0f, 0.8f, 0f, 0, batchlen, batchlen,12);
+		
 		//connect the input to the neural network
 	    input = new TrainingInputDataImpl(results.get(nnchoice.getInputLayer()), results.get(oe));
 		expreplay = new ArrayList<CardStateExp>();
@@ -105,9 +111,9 @@ public class NNevalNet {
 	}
 	public void load(Path nnp) throws IOException{
 		//functions to load the neural net itself as well
-		nnchoice = nntools.NetworkManipulator.loadNetwork(nnp);
+		nnchoice = nntools.NetworkManipulator.loadNetwork(nnp, true);
 		//don't want to randomly initialise it
-		bpt =  TrainerFactory.backPropagation(nnchoice, mycsprov, testprov, oe, null, 0.1f, 0f, 0.1f, 0f, 0, batchlen, batchlen, 2);
+		bpt =  TrainerFactory.backPropagation(nnchoice, mycsprov, testprov, oe, null, 0.001f, 0f, 0.8f, 0f, 0, batchlen, batchlen, 12);
 	}
 	public void save(){
 		save(Paths.get("/home/stephen/Documents/MagicNN.nn"));
@@ -156,7 +162,7 @@ public class NNevalNet {
 		return  memresults.get(nnmem.getOutputLayer());
 	}
 	public void storeMem(){
-		nnmem = NetworkManipulator.CopySigmoidNN(nnchoice);
+		nnmem = NetworkManipulator.CopyRELUNN(nnchoice);
 		memresults = TensorFactory.tensorProvider(nnmem,1, Environment.getInstance().getUseDataSharedMemory());
 		meminput = new TrainingInputDataImpl(memresults.get(nnmem.getInputLayer()), memresults.get(oe));
 	}
@@ -204,10 +210,8 @@ public class NNevalNet {
 			float [] target = runNNmem(i.startstate).getElements();
 			float val = 0;
 			val = (float)rankchoice(i.endstate);
-			//remove the normalisation
-			val = (val - 0.5f)*2;
 			//normalise the target
-			val =  (float)((i.reward + gamma*val)/2)+0.5f;
+			val =  (float)((i.reward + gamma*val));
 			target[0] = target[0] + (float)(alpha*(val - target[0]));
 			NNcardState s = i.startstate;
 			s.setTarget(TensorFactory.matrix(target,1));
