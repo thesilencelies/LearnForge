@@ -29,35 +29,33 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Set;
 
-public class NNevalNet {
-	private NeuralNetworkImpl nnmem;	//to allow the system to record what's happening
-	private NeuralNetworkImpl nnchoice;
-	private TrainingInputData input;
-	private TrainingInputData meminput;
-	private NNcardStateProvider mycsprov;
-	private NNSingleCardStateProvider testprov;
+public final class NNevalNet {
+	private static NeuralNetworkImpl nnmem;	//to allow the system to record what's happening
+	private static NeuralNetworkImpl nnchoice;
+	private static TrainingInputData input;
+	private static TrainingInputData meminput;
+	private static NNcardStateProvider mycsprov;
+	private static NNSingleCardStateProvider testprov;
 			
-	private BackPropagationTrainer<?> bpt;
-	private MultipleNeuronsOutputError oe;
-	private ValuesProvider results;
-	private ValuesProvider memresults;
-	private Set<Layer> calculatedLayers;
+	private static BackPropagationTrainer<?> bpt;
+	private static MultipleNeuronsOutputError oe;
+	private static ValuesProvider results;
+	private static ValuesProvider memresults;
+	private static Set<Layer> calculatedLayers;
 	
-	private double gamma, alpha;
+	private static double gamma, alpha;
 	
-	private List<CardStateExp> expreplay, replaybatch;
+	private static List<CardStateExp> expreplay, replaybatch;
 	
-	private int maxexplen, batchlen;
+	private static int maxexplen, batchlen;
 	
-	public NNevalNet(){
-		this(Paths.get("/home/stephen/Documents/MagicNN.nn"));
+	private NNevalNet(){
+		//stop anyone from intialising the class
 	}
-	public NNevalNet(Path p){
-		this(p, 0.99,0.6);
-	}
-	public NNevalNet(Path p, double _gamma, double _alpha){
-		gamma = _gamma;
-		alpha = _alpha;
+		
+	public static void initialize(){
+		gamma = 0.99;
+		alpha = 0.8;
 		maxexplen = 400;
 	    batchlen = 12;
 		//multilayer perceptron for the final decision for now
@@ -66,13 +64,13 @@ public class NNevalNet {
 		testprov = new NNSingleCardStateProvider();
 		oe = new MultipleNeuronsOutputError();
 		try{
-			load(p);
+			load(Paths.get("/home/stephen/Documents/MagicNN.nn"));
 		}catch(IOException e){
 			//if we can't load, we default initialise
 			nnchoice = NNFactory.mlpRelu(new int []{160,200,200,1},true, new ConnectionCalculatorFullyConnected());
-			bpt = TrainerFactory.backPropagation(nnchoice, mycsprov, testprov, oe, new NNRandomInitializer(new MersenneTwisterRandomInitializer(-0.1f,0.1f)),0.001f, 0.6f, 0f, 0f, 0, batchlen, batchlen, 12);
+			bpt = TrainerFactory.backPropagation(nnchoice, mycsprov, testprov, oe, new NNRandomInitializer(new MersenneTwisterRandomInitializer(-0.1f,0.1f)),0.0001f, 0.6f, 0f, 0f, 0, batchlen, batchlen, 12);
 			bpt.train();
-			bpt = TrainerFactory.backPropagation(nnchoice, mycsprov, testprov, oe,null,0.001f, 0.6f, 0f, 0f, 0, batchlen, batchlen, 12);
+			bpt = TrainerFactory.backPropagation(nnchoice, mycsprov, testprov, oe,null,0.0001f, 0.6f, 0f, 0f, 0, batchlen, batchlen, 12);
 		}
 		results = TensorFactory.tensorProvider(nnchoice,1, Environment.getInstance().getUseDataSharedMemory());
 		calculatedLayers  = new UniqueList<Layer>();
@@ -82,58 +80,31 @@ public class NNevalNet {
 	    replaybatch = new ArrayList<CardStateExp>();
 		storeMem();
 	}
-	public NNevalNet (double _gamma, double _alpha){
-		this(new int[] {160,200,200,1}, _gamma, _alpha);
-	}
-	public NNevalNet (int[] layers, double _gamma, double _alpha){
-		gamma = _gamma;
-		alpha = _alpha;
-		maxexplen = 400;
-	    batchlen = 12;
-
-		//multilayer perceptron for the final decision for now
-		//base and final layers are fixed by the size of the maze and number of outputs
-		nnchoice = NNFactory.mlpRelu(layers,true,new ConnectionCalculatorFullyConnected());
-		mycsprov =  new NNcardStateProvider();
-		testprov = new NNSingleCardStateProvider();
-		oe = new MultipleNeuronsOutputError();
-		results = TensorFactory.tensorProvider(nnchoice,1, Environment.getInstance().getUseDataSharedMemory());
-		calculatedLayers  = new UniqueList<Layer>();				//float learningRate, float momentum, float l1weightDecay, float l2weightDecay, float dropoutRate, int trainingBatchSize, int testBatchSize, int epochs
-		bpt = TrainerFactory.backPropagation(nnchoice, mycsprov, testprov, oe, new NNRandomInitializer(new MersenneTwisterRandomInitializer(-0.1f,0.1f)), 0.001f, 0f, 0.8f, 0f, 0, batchlen, batchlen,12);
-		bpt.train();
-		bpt = TrainerFactory.backPropagation(nnchoice, mycsprov, testprov, oe, null, 0.001f, 0f, 0.8f, 0f, 0, batchlen, batchlen,12);
-		
-		//connect the input to the neural network
-	    input = new TrainingInputDataImpl(results.get(nnchoice.getInputLayer()), results.get(oe));
-		expreplay = new ArrayList<CardStateExp>();
-	    replaybatch = new ArrayList<CardStateExp>();
-		storeMem();
-	}
-	public void load(Path nnp) throws IOException{
+	public static void load(Path nnp) throws IOException{
 		//functions to load the neural net itself as well
 		nnchoice = nntools.NetworkManipulator.loadNetwork(nnp, true);
 		//don't want to randomly initialise it
-		bpt =  TrainerFactory.backPropagation(nnchoice, mycsprov, testprov, oe, null, 0.001f, 0f, 0.8f, 0f, 0, batchlen, batchlen, 12);
+		bpt =  TrainerFactory.backPropagation(nnchoice, mycsprov, testprov, oe, null, 0.0001f, 0f, 0.8f, 0f, 0, batchlen, batchlen, 12);
 	}
-	public void save(){
+	public static void save(){
 		save(Paths.get("/home/stephen/Documents/MagicNN.nn"));
 	}
-	public void save(Path nnp){
+	public static void save(Path nnp){
 		//functions to save the neural net itself as well
 		nntools.NetworkManipulator.saveNetwork(nnchoice, nnp);
 	}
 	
-	public void ObserveAndTrain(NNcardState start, NNcardState end, double reward){
+	public static void ObserveAndTrain(NNcardState start, NNcardState end, double reward){
 		experience(start, end, reward);
 		setTargets();
 		bpt.train();
 	}
 	
-	public double rankchoice(NNcardState state){
+	public static double rankchoice(NNcardState state){
 		//use the remembered network for decision making
 		return runNNmem(state).get(0);
 	}
-	private Matrix runNN(NNcardState state){
+	private static Matrix runNN(NNcardState state){
 		 if (oe != null) {
 		oe.reset();
 		results.add(oe, results.get(nnchoice.getOutputLayer()).getDimensions());
@@ -147,7 +118,7 @@ public class NNevalNet {
 
 		return  results.get(nnchoice.getOutputLayer());
 	}
-	private Matrix runNNmem(NNcardState state){
+	private static Matrix runNNmem(NNcardState state){
 		if (oe != null) {
 		oe.reset();
 		memresults.add(oe, memresults.get(nnmem.getOutputLayer()).getDimensions());
@@ -161,13 +132,13 @@ public class NNevalNet {
 
 		return  memresults.get(nnmem.getOutputLayer());
 	}
-	public void storeMem(){
+	public static void storeMem(){
 		nnmem = NetworkManipulator.CopyRELUNN(nnchoice);
 		memresults = TensorFactory.tensorProvider(nnmem,1, Environment.getInstance().getUseDataSharedMemory());
 		meminput = new TrainingInputDataImpl(memresults.get(nnmem.getInputLayer()), memresults.get(oe));
 	}
 	
-	protected void experience(NNcardState startstate, NNcardState endstate, double reward){
+	protected static void experience(NNcardState startstate, NNcardState endstate, double reward){
 		//moves the position, then stores the results in expreplay, then prepares a random batch from experience
 		//create the random batch
 		if(expreplay.size() < batchlen){
@@ -201,7 +172,7 @@ public class NNevalNet {
 		//always include the most recent experience in the batch.
 		replaybatch.add(s);
 	}
-	protected void setTargets(){
+	protected static void setTargets(){
 		//sets the target values for each of the points in replaybatch
 		Iterator<CardStateExp> it = replaybatch.iterator();
 		List<NNcardState> learnbatch = new ArrayList<NNcardState>();

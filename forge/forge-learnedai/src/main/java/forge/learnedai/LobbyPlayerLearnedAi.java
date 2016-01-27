@@ -16,17 +16,12 @@ public class LobbyPlayerLearnedAi extends LobbyPlayer implements IGameEntitiesFa
     private boolean rotateProfileEachGame;
     private boolean allowCheatShuffle;
     private boolean useSimulation;
-    private NNevalNet nn;
 
     public LobbyPlayerLearnedAi(String name, Set<AIOption> options) {
         super(name);
         if (options != null && options.contains(AIOption.USE_SIMULATION)) {
             this.useSimulation = true;
         }
-        nn = new NNevalNet();	//uses the default loading - may be changed later
-    }
-    public NNevalNet getNN(){
-    	return nn;
     }
 
     public boolean isAllowCheatShuffle() {
@@ -50,7 +45,7 @@ public class LobbyPlayerLearnedAi extends LobbyPlayer implements IGameEntitiesFa
     }
 
     private LearnedPlayerControllerAi createControllerFor(Player ai) {
-        LearnedPlayerControllerAi result = new LearnedPlayerControllerAi(ai.getGame(), ai, this, nn);
+        LearnedPlayerControllerAi result = new LearnedPlayerControllerAi(ai.getGame(), ai, this);
         result.setUseSimulation(useSimulation);
         result.allowCheatShuffle(allowCheatShuffle);
         return result;

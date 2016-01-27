@@ -17,11 +17,7 @@ import forge.game.zone.ZoneType;
 public class LearnedGameStateEvaluator {
     private boolean debugging;
     
-    //neural network elements
-    private NNevalNet nn;
-    
-    public LearnedGameStateEvaluator(NNevalNet _nn){
-    	nn = _nn;
+    public LearnedGameStateEvaluator(){
     	debugging = false;
     }
 
@@ -55,7 +51,7 @@ public class LearnedGameStateEvaluator {
     //    Combat combat = simulateUpcomingCombatThisTurn(game);
         
         NNcardState state = QGameState.ProduceGamestate(aiPlayer);
-        double score = nn.rankchoice(state);
+        double score = NNevalNet.rankchoice(state);
         return new Score(score);
     }
 

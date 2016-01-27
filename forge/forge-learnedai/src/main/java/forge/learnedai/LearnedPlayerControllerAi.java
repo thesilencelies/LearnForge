@@ -66,10 +66,10 @@ import java.util.*;
 public class LearnedPlayerControllerAi extends PlayerController {
     private final LearnedAiController brains;
 
-    public LearnedPlayerControllerAi(Game game, Player p, LobbyPlayer lp, NNevalNet nn) {
+    public LearnedPlayerControllerAi(Game game, Player p, LobbyPlayer lp) {
         super(game, p, lp);
 
-        brains = new LearnedAiController(p, game, nn);
+        brains = new LearnedAiController(p, game);
     }
 
     public void allowCheatShuffle(boolean value){

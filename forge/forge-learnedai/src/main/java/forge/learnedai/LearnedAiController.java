@@ -109,8 +109,6 @@ public class LearnedAiController {
     private boolean cheatShuffle;
     private boolean useSimulation;
     private LearnedSpellAbilityPicker simPicker;
-
-    private NNevalNet nn;
     
     //memory of states to use for learning
     private NNcardState prevstate, currentstate, opprevstate,oppcurrstate;
@@ -123,12 +121,12 @@ public class LearnedAiController {
     	prevstate = currentstate.clone();
     	currentstate = QGameState.ProduceGamestate(player);
     	int reward = win? 10 : -10;	//larger rewards to exaggerate the impact of actual results
-    	nn.ObserveAndTrain(prevstate, currentstate, reward);
+    	NNevalNet.ObserveAndTrain(prevstate, currentstate, reward);
     	opprevstate = oppcurrstate.clone();
     	oppcurrstate = QGameState.ProduceGamestate(player.getOtherPlayer());
-    	nn.ObserveAndTrain(opprevstate, oppcurrstate, reward*-1);
-    	nn.storeMem();
-    	nn.save();
+    	NNevalNet.ObserveAndTrain(opprevstate, oppcurrstate, reward*-1);
+    	NNevalNet.storeMem();
+    	NNevalNet.save();
     }
 
     public void allowCheatShuffle(boolean canCheatShuffle) {
@@ -151,12 +149,11 @@ public class LearnedAiController {
         return memory;
     }
 
-    public LearnedAiController(final Player computerPlayer, final Game game0, NNevalNet _nn) {
-        nn = _nn;
+    public LearnedAiController(final Player computerPlayer, final Game game0) {
     	player = computerPlayer;
         game = game0;
         memory = new LearnedAiCardMemory();
-        simPicker = new LearnedSpellAbilityPicker(game, player, new LearnedGameStateEvaluator(nn));
+        simPicker = new LearnedSpellAbilityPicker(game, player, new LearnedGameStateEvaluator());
     }
 
     public boolean checkETBEffects(final Card card, final SpellAbility sa, final ApiType api) {
@@ -973,7 +970,7 @@ public class LearnedAiController {
 
         prevstate = currentstate.clone();
         currentstate = QGameState.ProduceGamestate(player);
-        nn.ObserveAndTrain(prevstate, currentstate, 0);
+        NNevalNet.ObserveAndTrain(prevstate, currentstate, 0);
     	//learning from the opponent's board as well
         if(oppcurrstate == null){
     		oppcurrstate = QGameState.ProduceGamestate(player.getOpponent());
@@ -981,7 +978,7 @@ public class LearnedAiController {
         opprevstate = oppcurrstate.clone();
         oppcurrstate = QGameState.ProduceGamestate(player.getOpponent());
         
-        nn.ObserveAndTrain(opprevstate, oppcurrstate, 0);
+        NNevalNet.ObserveAndTrain(opprevstate, oppcurrstate, 0);
         
         if (game.getStack().isEmpty() && phase.isMain()) {
             Log.debug("Computer " + phase.nameForUi);

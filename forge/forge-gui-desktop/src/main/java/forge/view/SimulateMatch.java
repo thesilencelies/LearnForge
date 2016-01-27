@@ -73,35 +73,22 @@ public class SimulateMatch {
             System.out.println("\tN - number of games, defaults to 1");
             return;
         }
-        Deck d1 = deckFromCommandLineParameter(args[2]);
-        Deck d2 = deckFromCommandLineParameter(args[3]);
-        if(d1 == null || d2 == null) {
-            System.out.println("One of decks could not be loaded, match cannot start");
-            return;
-        }
         
         int nGames = args.length >= 5 ? Integer.parseInt(args[4]) : 1;
-        
-        System.out.println(String.format("Ai-%s vs Ai_%s - %s", d1.getName(), d2.getName(), Lang.nounWithNumeral(nGames, "game")));
-        
+
         //load the learned ai state
         
         List<RegisteredPlayer> pp = new ArrayList<RegisteredPlayer>();
-        pp.add(new RegisteredPlayer(d1).setPlayer(GamePlayerUtil.createLearnedAiPlayer("Ai-" + d1.getName(), 0)));
-        pp.add(new RegisteredPlayer(d2).setPlayer(GamePlayerUtil.createAiPlayer("Ai_" + d2.getName(), 1)));
+        pp.add(new RegisteredPlayer(deckFromCommandLineParameter(args[2])).setPlayer(GamePlayerUtil.createLearnedAiPlayer("learned AI", 0)));
+        pp.add(new RegisteredPlayer(deckFromCommandLineParameter(args[3])).setPlayer(GamePlayerUtil.createAiPlayer("Hardcoded AI", 1)));
         GameRules rules = new GameRules(GameType.Constructed);
         Match mc = new Match(rules, pp, "Test");
         int p1wins = 0;
         for (int iGame = 0; iGame < nGames; iGame++) {
             p1wins += simulateSingleMatch(mc, iGame);
             System.out.println(String.format("current score is LearnedAI : %d , RulesAI : %d \n",p1wins, (iGame +1 - p1wins) ));
-            if(iGame%6 == 5){
-            	mc = null;
-            	pp = null;
-            	pp = new ArrayList<RegisteredPlayer>();
-                pp.add(new RegisteredPlayer(d1).setPlayer(GamePlayerUtil.createLearnedAiPlayer("Ai-" + d1.getName(), 0)));
-                pp.add(new RegisteredPlayer(d2).setPlayer(GamePlayerUtil.createAiPlayer("Ai_" + d2.getName(), 1)));
-                mc = new Match(rules, pp, "Test");
+            if(iGame%5 == 4){
+            		mc = new Match(rules, pp, "Test");
             }
 
             
@@ -124,11 +111,11 @@ public class SimulateMatch {
         mc.startGame(g1);
         sw.stop();
         
-        List<GameLogEntry> log = g1.getGameLog().getLogEntries(null);
-        Collections.reverse(log);
+       // List<GameLogEntry> log = g1.getGameLog().getLogEntries(null);
+       // Collections.reverse(log);
         
-        for(GameLogEntry l : log)
-            System.out.println(l);
+       // for(GameLogEntry l : log)
+         //   System.out.println(l);
 
         System.out.println(String.format("\nGame %d ended in %d ms. %s has won!\n", 1+iGame, sw.getTime(), g1.getOutcome().getWinningLobbyPlayer().getName()));
         

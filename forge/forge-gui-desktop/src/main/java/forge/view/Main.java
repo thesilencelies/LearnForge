@@ -47,7 +47,10 @@ public final class Main {
 
         //install our error handler
         ExceptionHandler.registerErrorHandling();
-
+        
+        //create the brains for the AI that is passed between games
+        NNevalNet.initialize();
+        
         // Start splash screen first, then data models, then controller.
         if (args.length == 0) {
             Singletons.initializeOnce(true);
@@ -56,9 +59,6 @@ public final class Main {
             Singletons.getControl().initialize();
             return;
         }
-        
-        //create the brains for the AI that is passed between games
-        NNevalNet nn = new NNevalNet();
         
         // command line startup here
         String mode = args[0].toLowerCase();
